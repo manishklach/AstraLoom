@@ -43,6 +43,16 @@ for name,body in [('Sun',0),('Moon',1),('Mars',4),('Mercury',2),('Jupiter',5),('
 kl=(planets['Rahu']['longitude']+180)%360
 planets['Ketu']={'longitude':kl,'lords':lords(kl)}
 cusps,_=swe.houses_ex(jd,19.076,72.8777,b'P',swe.FLG_SIDEREAL)
+def house_of(longitude):
+    # Independent cusp-to-next-cusp house allocation, matching the stated
+    # ecliptic-house contract without calling the browser implementation.
+    for i,start_cusp in enumerate(cusps):
+        span=(cusps[(i+1)%12]-start_cusp)%360
+        if (longitude-start_cusp)%360<span:
+            return i+1
+    raise RuntimeError('Longitude was not allocated to a Placidus house')
+for planet in planets.values():
+    planet['house']=house_of(planet['longitude'])
 moon=Fraction(str(planets['Moon']['longitude'])); width=Fraction(40,3)
 fraction=(moon%width)/width
 start=182910300000-float(fraction*17*Fraction('365.25')*86400000)
@@ -50,7 +60,7 @@ ref={'native_version':swe.version,'jd':jd,'data_sha256':hashes,'cusps':cusps,'cu
 # Independent recursive dasha reference at a fixed reproducible instant.
 now=datetime.datetime(2026,9,13,12,tzinfo=datetime.timezone.utc).timestamp()*1000
 chain=[];begin=start;duration=120*365.25*86400000;first=8
-for level in range(4):
+for level in range(5):
     offset=0
     for i in range(9):
         k=(first+i)%9; end=begin+duration*(offset+years[k])/120

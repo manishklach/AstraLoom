@@ -35,7 +35,7 @@ The browser test defaults to installed Microsoft Edge. Set `BROWSER_CHANNEL=chro
 - North Indian birth chart by default, with a one-click South Indian fixed-sign alternative.
 - Planetary positions include KP house occupation and a numbered **Signified houses** field, deduplicated from four-fold A/B/C/D significations.
 - All 12 Placidus cusps, with sign, star, sub and sub-sub lords.
-- Current Vimshottari MD / AD / PD / Sookshma; four-level navigation, date jump, previous/next 120-year cycles, local or UTC timestamps.
+- Current Vimshottari MD / AD / PD / Sookshma / Pran; five-level navigation, date jump, previous/next 120-year cycles, local or UTC timestamps.
 - Four-fold KP significations plus separate planet/star/sub house relationships and node sign-lord proxies.
 - Mean/true nodes and selectable 365.25, 365.25636 or 360-day dasha year.
 - Light and dark colour themes. KP Atlas uses the device preference on first visit and remembers a manually selected theme only in the browser.
@@ -52,7 +52,7 @@ House occupation is ecliptic longitude from cusp to next cusp, not whole-sign ow
 
 For Rahu and Ketu, the displayed carrier set is their house placement plus the houses of their sign lord, planets casting traditional Vedic aspects to the node, and planets in the same sidereal sign as either node. A planet placed in a node’s nakshatra or sub receives that complete carrier set in its numbered total and in the Star/Sub lines. The customary aspect set used here is 7th for all planets, with Mars 4th/8th, Jupiter 5th/9th and Saturn 3rd/10th. A node’s nakshatra lord is still displayed as a relationship but is not included in this carrier set. This keeps the rule explicit and matches the Mars-in-Rahu-star example in the bundled sample chart.
 
-Vimshottari starts with the Moon's nakshatra lord, using its unrounded fractional progress to determine the birth balance. Children divide the full parent period in Vimshottari proportions, beginning with the parent's lord. The first MD includes its pre-birth portion. The default year is **365.25 fixed days**. Timestamps include offsets and seconds; internal boundaries retain fractional milliseconds. Different year conventions yield different dates, so compare like-for-like.
+Vimshottari starts with the Moon's nakshatra lord, using its unrounded fractional progress to determine the birth balance. Children divide the full parent period in Vimshottari proportions, beginning with the parent's lord, through the Pran level. The first MD includes its pre-birth portion. The default year is **365.25 fixed days**. Timestamps include offsets and seconds; internal boundaries retain fractional milliseconds. Different year conventions yield different dates, so compare like-for-like.
 
 ## Verification
 

@@ -90,7 +90,8 @@
         "Mars",
         "Mercury",
         "Jupiter"
-      ]
+      ],
+      "house": 1
     },
     "Moon": {
       "longitude": 348.49143417110076,
@@ -100,7 +101,8 @@
         "Mercury",
         "Mercury",
         "Saturn"
-      ]
+      ],
+      "house": 6
     },
     "Mars": {
       "longitude": 66.97414260907749,
@@ -110,7 +112,8 @@
         "Rahu",
         "Rahu",
         "Jupiter"
-      ]
+      ],
+      "house": 9
     },
     "Mercury": {
       "longitude": 165.69338497869572,
@@ -120,7 +123,8 @@
         "Moon",
         "Saturn",
         "Saturn"
-      ]
+      ],
+      "house": 12
     },
     "Jupiter": {
       "longitude": 355.5027464593676,
@@ -130,7 +134,8 @@
         "Mercury",
         "Rahu",
         "Venus"
-      ]
+      ],
+      "house": 7
     },
     "Venus": {
       "longitude": 136.59339370675315,
@@ -140,7 +145,8 @@
         "Venus",
         "Moon",
         "Jupiter"
-      ]
+      ],
+      "house": 11
     },
     "Saturn": {
       "longitude": 98.88605539906553,
@@ -150,7 +156,8 @@
         "Saturn",
         "Venus",
         "Mars"
-      ]
+      ],
+      "house": 10
     },
     "Rahu": {
       "longitude": 209.75934374742187,
@@ -160,7 +167,8 @@
         "Jupiter",
         "Moon",
         "Rahu"
-      ]
+      ],
+      "house": 2
     },
     "TrueRahu": {
       "longitude": 208.49406766663685,
@@ -170,7 +178,8 @@
         "Jupiter",
         "Venus",
         "Mercury"
-      ]
+      ],
+      "house": 2
     },
     "Ketu": {
       "longitude": 29.759343747421894,
@@ -178,7 +187,8 @@
         "Sun",
         "Rahu",
         "Jupiter"
-      ]
+      ],
+      "house": 8
     }
   },
   "dasha_start_ms": 109489064177.64009,
@@ -202,6 +212,11 @@
       "lord": "Moon",
       "start": 1788853046177.6401,
       "end": 1789408226177.6401
+    },
+    {
+      "lord": "Venus",
+      "start": 1789287937177.6401,
+      "end": 1789380467177.6401
     }
   ]
 }

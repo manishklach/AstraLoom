@@ -23,6 +23,6 @@ export function chainAt(seed,ms) {
   if(!Number.isFinite(ms)) throw new Error('Select a valid date and time.');
   const cycle=Math.floor((ms-seed.start)/(120*seed.yearDays*DAY));
   let list=mahadashas(seed,cycle),chain=[];
-  for(let level=0;level<4;level++){const p=list.find(p=>contains(p,ms));if(!p)throw new Error('Date outside dasha range.');chain.push(p);list=children(p);}
+  for(let level=0;level<5;level++){const p=list.find(p=>contains(p,ms));if(!p)throw new Error('Date outside dasha range.');chain.push(p);list=children(p);}
   return {cycle,chain};
 }
