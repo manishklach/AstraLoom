@@ -13,3 +13,15 @@ test('coordinates validated',()=>{for(const extra of [{lat:''},{lon:''},{lat:91}
 test('native Python reference reproduces every longitude and lord chain',async()=>{const native=JSON.parse(await readFile('tests/fixtures/native-reference.json','utf8')),c=calculate(swe,input);c.cusps.forEach((p,i)=>assert.ok(Math.abs(p.longitude-native.cusps[i])<1e-8));c.planets.forEach(p=>{assert.ok(Math.abs(p.longitude-native.planets[p.name].longitude)<1e-8,p.name);assert.deepEqual([p.star,p.sub,p.subsub],native.planets[p.name].lords,p.name);});assert.ok(Math.abs(c.seed.start-native.dasha_start_ms)<1);});
 test('all cusp chains, true Rahu and four current dasha boundaries match native reference',async()=>{const n=JSON.parse(await readFile('tests/fixtures/native-reference.json','utf8')),c=calculate(swe,input);c.cusps.forEach((p,i)=>assert.deepEqual([p.star,p.sub,p.subsub],n.cusp_lords[i]));assert.ok(Math.abs(calculate(swe,{...input,node:'true'}).planets[7].longitude-n.planets.TrueRahu.longitude)<1e-8);chainAt(c.seed,Date.parse('2026-09-13T12:00:00Z')).chain.forEach((p,i)=>{assert.equal(p.lord,n.referenceChain[i].lord);assert.ok(Math.abs(p.start-n.referenceChain[i].start)<1);assert.ok(Math.abs(p.end-n.referenceChain[i].end)<1);});});
 test('all seven classical planets agree with retained NASA/JPL reference within 0.1 arcsecond',async()=>{const jpl=JSON.parse(await readFile('tests/fixtures/jpl-reference.json','utf8')),c=calculate(swe,input);assert.equal(jpl.length,7);for(const r of jpl){const p=c.planets.find(p=>p.name===r.name),lon=(p.longitude+c.ayanamsa)%360;assert.ok(Math.abs(((lon-r.jpl_longitude+180)%360-180)*3600)<.1,r.name);}});
+test('node significations include star, sign, received aspects and axis conjunctions',()=>{
+  const c=calculate(swe,input),rahu=c.significations.find(p=>p.name==='Rahu'),ketu=c.significations.find(p=>p.name==='Ketu');
+  assert.deepEqual(rahu.nodeAgency.starLord,{lord:'Jupiter',houses:[4,7]});
+  assert.deepEqual(rahu.nodeAgency.signLord,{lord:'Venus',houses:[2,9,11]});
+  assert.deepEqual(rahu.nodeAgency.axisConjunctions,[{node:'Rahu',planet:'Sun',houses:[1,12]}]);
+  assert.deepEqual(rahu.allHouses,[1,2,4,7,9,11,12]);
+  assert.deepEqual(ketu.nodeAgency.starLord,{lord:'Sun',houses:[1,12]});
+  assert.deepEqual(ketu.nodeAgency.signLord,{lord:'Mars',houses:[3,8,9]});
+  assert.deepEqual(ketu.nodeAgency.aspects,[{planet:'Sun',aspects:[7],houses:[1,12]},{planet:'Saturn',aspects:[10],houses:[5,6,10]}]);
+  assert.deepEqual(ketu.nodeAgency.axisConjunctions,[{node:'Rahu',planet:'Sun',houses:[1,12]}]);
+  assert.deepEqual(ketu.allHouses,[1,3,5,6,8,9,10,12]);
+});

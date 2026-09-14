@@ -16,4 +16,4 @@ export function northChart(chart){
   }).join('');
   return `<div class="north-wrap"><svg class="north-chart" viewBox="-3 -3 406 406" role="img" aria-label="North Indian rasi chart. Fixed house positions; numbers denote zodiac signs. ${SIGNS[asc]} ascendant is sign ${asc+1}."><rect x="0" y="0" width="400" height="400" class="north-paper"/><path d="M0 0L400 400M400 0L0 400M200 0L400 200L200 400L0 200Z" class="north-lines"/>${cells}</svg></div><p class="hint chart-key">Numbers are signs: 1 Aries, 2 Taurus, 3 Gemini, 4 Cancer, 5 Leo, 6 Virgo, 7 Libra, 8 Scorpio, 9 Sagittarius, 10 Capricorn, 11 Aquarius, 12 Pisces. Ascendant is the upper central diamond. KP house occupation is listed in the table below.</p>`;
 }
-export function houseNumbers(s){return [...new Set([...s.A,...s.B,...s.C,...s.D])].sort((a,b)=>a-b);}
+export function houseNumbers(s){return s.allHouses??[...new Set([...s.A,...s.B,...s.C,...s.D])].sort((a,b)=>a-b);}

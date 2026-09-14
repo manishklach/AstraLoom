@@ -37,9 +37,31 @@ export function significations(planets,cusps) {
   const owned=name=>cusps.filter(c=>c.signLord===name).map(c=>c.house);
   const basic=p=>[...new Set([p.house,...owned(p.name)])].sort((a,b)=>a-b);
   const map=Object.fromEntries(planets.map(p=>[p.name,p]));
+  const isNode=p=>p.name==='Rahu'||p.name==='Ketu';
+  const planetsWithAspects=planets.filter(p=>!isNode(p));
+  const vedicAspects={Sun:[7],Moon:[7],Mercury:[7],Venus:[7],Mars:[4,7,8],Jupiter:[5,7,9],Saturn:[3,7,10]};
+  // A conjunction here means planets sharing a sidereal sign. KP practitioners
+  // commonly apply this sign-level node agency; it is intentionally shown as
+  // a source rather than silently blended into the four-fold table.
+  const axisConjunctions=planets.filter(isNode).flatMap(node=>
+    planetsWithAspects.filter(p=>p.signIndex===node.signIndex).map(p=>({node:node.name,planet:p.name,houses:basic(p)}))
+  );
+  const unique=values=>[...new Set(values.flat(Infinity))].sort((a,b)=>a-b);
   return planets.map(p=>{
     const star=map[p.star],sub=map[p.sub];
-    return {name:p.name,star:p.star,sub:p.sub,A:[star.house],B:[p.house],C:owned(star.name),D:owned(p.name),planet:basic(p),starHouses:basic(star),subHouses:basic(sub),nodeProxy:['Rahu','Ketu'].includes(p.name)?{lord:p.signLord,houses:basic(map[p.signLord])}:null};
+    const fourFold={A:[star.house],B:[p.house],C:owned(star.name),D:owned(p.name)};
+    if(!isNode(p)) return {name:p.name,star:p.star,sub:p.sub,...fourFold,allHouses:unique(Object.values(fourFold)),planet:basic(p),starHouses:basic(star),subHouses:basic(sub),nodeAgency:null};
+    const aspectAgencies=planetsWithAspects
+      .filter(candidate=>vedicAspects[candidate.name].some(aspect=>((candidate.signIndex+aspect-1)%12)===p.signIndex))
+      .map(candidate=>({planet:candidate.name,aspects:vedicAspects[candidate.name].filter(aspect=>((candidate.signIndex+aspect-1)%12)===p.signIndex),houses:basic(candidate)}));
+    const nodeAgency={
+      starLord:{lord:star.name,houses:basic(star)},
+      signLord:{lord:p.signLord,houses:basic(map[p.signLord])},
+      aspects:aspectAgencies,
+      axisConjunctions
+    };
+    const allHouses=unique([Object.values(fourFold),nodeAgency.starLord.houses,nodeAgency.signLord.houses,aspectAgencies.map(a=>a.houses),axisConjunctions.map(a=>a.houses)]);
+    return {name:p.name,star:p.star,sub:p.sub,...fourFold,allHouses,planet:basic(p),starHouses:basic(star),subHouses:basic(sub),nodeAgency};
   });
 }
 export function dms(lon) {
