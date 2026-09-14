@@ -1,0 +1,10 @@
+import {writeFile,mkdir} from 'node:fs/promises';
+import SwissEph from 'swisseph-wasm';
+import {calculate} from '../src/astronomy.js';
+import {chainAt,mahadashas} from '../src/dasha.js';
+const swe=new SwissEph();await swe.initSwissEph();
+const input={date:'1975-10-19',hour:5,minute:55,second:0,ampm:'AM',zone:'Asia/Kolkata',lat:19.076,lon:72.8777,place:'Mumbai, Maharashtra, India',node:'mean',yearDays:365.25};
+const c=calculate(swe,input);
+await mkdir('tests/fixtures',{recursive:true});
+await writeFile('tests/fixtures/sample-wasm.json',JSON.stringify({...c,referenceInstant:'2026-09-13T12:00:00Z',referenceChain:chainAt(c.seed,Date.parse('2026-09-13T12:00:00Z')).chain,mahadashas:mahadashas(c.seed),trueNodes:calculate(swe,{...input,node:'true'}).planets.slice(-2)},null,2));
+console.log('Wrote sample-wasm.json');

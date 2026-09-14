@@ -1,0 +1,72 @@
+[
+  {
+    "name": "Sun",
+    "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27500%40399%27&TLIST=%272442704.517361111%27&QUANTITIES=%2731%27&CSV_FORMAT=%27YES%27&EXTRA_PREC=%27YES%27",
+    "jpl_longitude": 205.0005085,
+    "jpl_latitude": 0.0002558,
+    "swiss_de441_tropical_longitude": 205.0005213335685,
+    "delta_arcsec": 0.0462008466683983,
+    "app_tropical_longitude": 205.00052132549763,
+    "app_delta_arcsec": 0.046171791484539426
+  },
+  {
+    "name": "Moon",
+    "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27301%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27500%40399%27&TLIST=%272442704.517361111%27&QUANTITIES=%2731%27&CSV_FORMAT=%27YES%27&EXTRA_PREC=%27YES%27",
+    "jpl_longitude": 11.917104,
+    "jpl_latitude": 3.3618576,
+    "swiss_de441_tropical_longitude": 11.917116784179802,
+    "delta_arcsec": 0.04602304728678064,
+    "app_tropical_longitude": 11.917116703477973,
+    "app_delta_arcsec": 0.04573252072077594
+  },
+  {
+    "name": "Mercury",
+    "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27199%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27500%40399%27&TLIST=%272442704.517361111%27&QUANTITIES=%2731%27&CSV_FORMAT=%27YES%27&EXTRA_PREC=%27YES%27",
+    "jpl_longitude": 189.1190545,
+    "jpl_latitude": 1.0599478,
+    "swiss_de441_tropical_longitude": 189.11906754652904,
+    "delta_arcsec": 0.046967504522399395,
+    "app_tropical_longitude": 189.1190675110729,
+    "app_delta_arcsec": 0.04683986242071114
+  },
+  {
+    "name": "Venus",
+    "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27299%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27500%40399%27&TLIST=%272442704.517361111%27&QUANTITIES=%2731%27&CSV_FORMAT=%27YES%27&EXTRA_PREC=%27YES%27",
+    "jpl_longitude": 160.0190637,
+    "jpl_latitude": -1.4730969,
+    "swiss_de441_tropical_longitude": 160.01907633365505,
+    "delta_arcsec": 0.04548115816760401,
+    "app_tropical_longitude": 160.01907623913036,
+    "app_delta_arcsec": 0.045140869269744144
+  },
+  {
+    "name": "Mars",
+    "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27499%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27500%40399%27&TLIST=%272442704.517361111%27&QUANTITIES=%2731%27&CSV_FORMAT=%27YES%27&EXTRA_PREC=%27YES%27",
+    "jpl_longitude": 90.3998116,
+    "jpl_latitude": 0.2075668,
+    "swiss_de441_tropical_longitude": 90.39982516000681,
+    "delta_arcsec": 0.04881602450268474,
+    "app_tropical_longitude": 90.39982514145471,
+    "app_delta_arcsec": 0.04874923694160316
+  },
+  {
+    "name": "Jupiter",
+    "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27599%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27500%40399%27&TLIST=%272442704.517361111%27&QUANTITIES=%2731%27&CSV_FORMAT=%27YES%27&EXTRA_PREC=%27YES%27",
+    "jpl_longitude": 18.9284165,
+    "jpl_latitude": -1.6077035,
+    "swiss_de441_tropical_longitude": 18.92842923640897,
+    "delta_arcsec": 0.0458510722637584,
+    "app_tropical_longitude": 18.928428991744795,
+    "app_delta_arcsec": 0.04497028127161684
+  },
+  {
+    "name": "Saturn",
+    "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27699%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27500%40399%27&TLIST=%272442704.517361111%27&QUANTITIES=%2731%27&CSV_FORMAT=%27YES%27&EXTRA_PREC=%27YES%27",
+    "jpl_longitude": 122.3117334,
+    "jpl_latitude": 0.1108695,
+    "swiss_de441_tropical_longitude": 122.31173804998107,
+    "delta_arcsec": 0.016739931834308663,
+    "app_tropical_longitude": 122.3117379314428,
+    "app_delta_arcsec": 0.016313194123540598
+  }
+]

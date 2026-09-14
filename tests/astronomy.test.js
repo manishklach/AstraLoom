@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import SwissEph from 'swisseph-wasm';
+import {calculate} from '../src/astronomy.js';
+import {chainAt} from '../src/dasha.js';
+const swe=new SwissEph();await swe.initSwissEph();
+const input={date:'1975-10-19',hour:5,minute:55,ampm:'AM',zone:'Asia/Kolkata',lat:19.076,lon:72.8777,node:'mean'};
+test('sample expected ascendant and exact 10th cusp',()=>{const c=calculate(swe,input);assert.equal(c.cusps[0].sign,'Virgo');assert.ok(Math.abs(c.cusps[9].longitude-81.30711202144593)<1e-8);assert.equal(c.cusps[9].sub,'Jupiter');assert.equal(c.planets[1].star,'Mercury');});
+test('node toggle preserves non-node positions and exactly opposite Ketu',()=>{const a=calculate(swe,input),b=calculate(swe,{...input,node:'true'});assert.deepEqual(a.planets.slice(0,7),b.planets.slice(0,7));assert.ok(Math.abs(a.planets[7].longitude-b.planets[7].longitude)>.01);for(const c of [a,b])assert.ok(Math.abs(c.planets[7].longitude-c.planets[8].longitude-180)<1e-9);});
+test('polar Placidus fails rather than falling back',()=>{assert.throws(()=>calculate(swe,{...input,lat:89}),/undefined/);});
+test('coordinates validated',()=>{for(const extra of [{lat:''},{lon:''},{lat:91},{lon:181},{lat:'x'}])assert.throws(()=>calculate(swe,{...input,...extra}));});
+test('native Python reference reproduces every longitude and lord chain',async()=>{const native=JSON.parse(await readFile('tests/fixtures/native-reference.json','utf8')),c=calculate(swe,input);c.cusps.forEach((p,i)=>assert.ok(Math.abs(p.longitude-native.cusps[i])<1e-8));c.planets.forEach(p=>{assert.ok(Math.abs(p.longitude-native.planets[p.name].longitude)<1e-8,p.name);assert.deepEqual([p.star,p.sub,p.subsub],native.planets[p.name].lords,p.name);});assert.ok(Math.abs(c.seed.start-native.dasha_start_ms)<1);});
+test('all cusp chains, true Rahu and four current dasha boundaries match native reference',async()=>{const n=JSON.parse(await readFile('tests/fixtures/native-reference.json','utf8')),c=calculate(swe,input);c.cusps.forEach((p,i)=>assert.deepEqual([p.star,p.sub,p.subsub],n.cusp_lords[i]));assert.ok(Math.abs(calculate(swe,{...input,node:'true'}).planets[7].longitude-n.planets.TrueRahu.longitude)<1e-8);chainAt(c.seed,Date.parse('2026-09-13T12:00:00Z')).chain.forEach((p,i)=>{assert.equal(p.lord,n.referenceChain[i].lord);assert.ok(Math.abs(p.start-n.referenceChain[i].start)<1);assert.ok(Math.abs(p.end-n.referenceChain[i].end)<1);});});
+test('all seven classical planets agree with retained NASA/JPL reference within 0.1 arcsecond',async()=>{const jpl=JSON.parse(await readFile('tests/fixtures/jpl-reference.json','utf8')),c=calculate(swe,input);assert.equal(jpl.length,7);for(const r of jpl){const p=c.planets.find(p=>p.name===r.name),lon=(p.longitude+c.ayanamsa)%360;assert.ok(Math.abs(((lon-r.jpl_longitude+180)%360-180)*3600)<.1,r.name);}});

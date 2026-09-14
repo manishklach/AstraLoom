@@ -1,0 +1,207 @@
+{
+  "native_version": "2.10.03",
+  "jd": 2442704.5173603175,
+  "data_sha256": {
+    "sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66",
+    "semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7"
+  },
+  "cusps": [
+    171.69677393876214,
+    201.18059872665395,
+    231.1300022050143,
+    261.30711202144596,
+    292.02716878703984,
+    322.7268710710001,
+    351.69677393876214,
+    21.180598726653944,
+    51.13000220501429,
+    81.30711202144593,
+    112.02716878703983,
+    142.72687107100012
+  ],
+  "cusp_lords": [
+    [
+      "Moon",
+      "Venus",
+      "Jupiter"
+    ],
+    [
+      "Jupiter",
+      "Jupiter",
+      "Sun"
+    ],
+    [
+      "Mercury",
+      "Venus",
+      "Mercury"
+    ],
+    [
+      "Venus",
+      "Jupiter",
+      "Sun"
+    ],
+    [
+      "Moon",
+      "Venus",
+      "Saturn"
+    ],
+    [
+      "Jupiter",
+      "Saturn",
+      "Venus"
+    ],
+    [
+      "Mercury",
+      "Sun",
+      "Rahu"
+    ],
+    [
+      "Venus",
+      "Jupiter",
+      "Venus"
+    ],
+    [
+      "Moon",
+      "Venus",
+      "Mars"
+    ],
+    [
+      "Jupiter",
+      "Jupiter",
+      "Moon"
+    ],
+    [
+      "Mercury",
+      "Sun",
+      "Mercury"
+    ],
+    [
+      "Venus",
+      "Saturn",
+      "Venus"
+    ]
+  ],
+  "planets": {
+    "Sun": {
+      "longitude": 181.57483880119128,
+      "latitude": 0.0002568375880760548,
+      "speed": 0.9927893311222763,
+      "lords": [
+        "Mars",
+        "Mercury",
+        "Jupiter"
+      ]
+    },
+    "Moon": {
+      "longitude": 348.4914342518026,
+      "latitude": 3.361853979584412,
+      "speed": 11.900066222324114,
+      "lords": [
+        "Mercury",
+        "Mercury",
+        "Saturn"
+      ]
+    },
+    "Mars": {
+      "longitude": 66.97414262762959,
+      "latitude": 0.20757675397753983,
+      "speed": 0.23310097483491204,
+      "lords": [
+        "Rahu",
+        "Rahu",
+        "Jupiter"
+      ]
+    },
+    "Mercury": {
+      "longitude": 165.6933850141518,
+      "latitude": 1.0599519602277396,
+      "speed": 0.10825480279156825,
+      "lords": [
+        "Moon",
+        "Saturn",
+        "Saturn"
+      ]
+    },
+    "Jupiter": {
+      "longitude": 355.5027467040317,
+      "latitude": -1.6077058911662339,
+      "speed": -0.13336440554556278,
+      "lords": [
+        "Mercury",
+        "Rahu",
+        "Venus"
+      ]
+    },
+    "Venus": {
+      "longitude": 136.59339380127784,
+      "latitude": -1.4730879342417373,
+      "speed": 0.8047247747576238,
+      "lords": [
+        "Venus",
+        "Moon",
+        "Jupiter"
+      ]
+    },
+    "Saturn": {
+      "longitude": 98.88605551760385,
+      "latitude": 0.11088139624876694,
+      "speed": 0.048557116333370315,
+      "lords": [
+        "Saturn",
+        "Venus",
+        "Mars"
+      ]
+    },
+    "Rahu": {
+      "longitude": 209.75934374742187,
+      "latitude": 0.0,
+      "speed": -0.05299206102726201,
+      "lords": [
+        "Jupiter",
+        "Moon",
+        "Rahu"
+      ]
+    },
+    "TrueRahu": {
+      "longitude": 208.49406723950432,
+      "latitude": -0.0,
+      "speed": -0.06987654491801255,
+      "lords": [
+        "Jupiter",
+        "Venus",
+        "Mercury"
+      ]
+    },
+    "Ketu": {
+      "longitude": 29.759343747421894,
+      "lords": [
+        "Sun",
+        "Rahu",
+        "Jupiter"
+      ]
+    }
+  },
+  "dasha_start_ms": 109489060930.5257,
+  "referenceChain": [
+    {
+      "lord": "Moon",
+      "start": 1687369060930.5256,
+      "end": 2002945060930.5256
+    },
+    {
+      "lord": "Jupiter",
+      "start": 1779412060930.5256,
+      "end": 1821488860930.5256
+    },
+    {
+      "lord": "Saturn",
+      "start": 1785022300930.5256,
+      "end": 1791684460930.5256
+    },
+    {
+      "lord": "Moon",
+      "start": 1788853042930.5256,
+      "end": 1789408222930.5256
+    }
+  ]
+}
