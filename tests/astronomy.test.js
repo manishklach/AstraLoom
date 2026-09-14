@@ -18,10 +18,14 @@ test('node significations include star, sign, received aspects and axis conjunct
   assert.deepEqual(rahu.nodeAgency.starLord,{lord:'Jupiter',houses:[4,7]});
   assert.deepEqual(rahu.nodeAgency.signLord,{lord:'Venus',houses:[2,9,11]});
   assert.deepEqual(rahu.nodeAgency.axisConjunctions,[{node:'Rahu',planet:'Sun',houses:[1,12]}]);
-  assert.deepEqual(rahu.allHouses,[1,2,4,7,9,11,12]);
+  assert.deepEqual(rahu.allHouses,[1,2,9,11,12]);
   assert.deepEqual(ketu.nodeAgency.starLord,{lord:'Sun',houses:[1,12]});
   assert.deepEqual(ketu.nodeAgency.signLord,{lord:'Mars',houses:[3,8,9]});
   assert.deepEqual(ketu.nodeAgency.aspects,[{planet:'Sun',aspects:[7],houses:[1,12]},{planet:'Saturn',aspects:[10],houses:[5,6,10]}]);
   assert.deepEqual(ketu.nodeAgency.axisConjunctions,[{node:'Rahu',planet:'Sun',houses:[1,12]}]);
   assert.deepEqual(ketu.allHouses,[1,3,5,6,8,9,10,12]);
+  const mars=c.significations.find(p=>p.name==='Mars');
+  assert.deepEqual(mars.starHouses,[1,2,9,11,12]);
+  assert.deepEqual(mars.subHouses,[1,2,9,11,12]);
+  assert.deepEqual(mars.allHouses,[1,2,3,8,9,11,12]);
 });

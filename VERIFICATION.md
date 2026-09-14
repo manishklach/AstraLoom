@@ -31,6 +31,7 @@ The requested Virgo ascendant and Jupiter 10th-cusp sub-lord are both confirmed.
 - Tests cover longitude wraparound, exact cusp allocation, moon-at-nakshatra start/end dasha balance, all nested dasha gaps, and earlier/later 120-year navigation cycles.
 - Time tests cover IST, noon/midnight conversion, historical Indian offset changes, invalid dates, DST spring gaps, repeated autumn times, 30-minute Lord Howe folds and Samoa’s skipped civil date.
 - Browser checks cover North/South Indian chart switching, all twelve North Indian chart houses, numbered A–D significations, full dasha navigation, place autocomplete, true/mean nodes, phone width, 200% text size and uncaught browser errors.
+- Node-agency tests confirm that Rahu in the sample carries `1, 2, 9, 11, 12`; Mars, whose star and sub are both Rahu, displays Rahu’s complete carrier set and totals `1, 2, 3, 8, 9, 11, 12`.
 
 ## Remaining assumptions
 

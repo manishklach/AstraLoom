@@ -47,7 +47,7 @@ export function significations(planets,cusps) {
     planetsWithAspects.filter(p=>p.signIndex===node.signIndex).map(p=>({node:node.name,planet:p.name,houses:basic(p)}))
   );
   const unique=values=>[...new Set(values.flat(Infinity))].sort((a,b)=>a-b);
-  return planets.map(p=>{
+  const rows=planets.map(p=>{
     const star=map[p.star],sub=map[p.sub];
     const fourFold={A:[star.house],B:[p.house],C:owned(star.name),D:owned(p.name)};
     if(!isNode(p)) return {name:p.name,star:p.star,sub:p.sub,...fourFold,allHouses:unique(Object.values(fourFold)),planet:basic(p),starHouses:basic(star),subHouses:basic(sub),nodeAgency:null};
@@ -60,8 +60,24 @@ export function significations(planets,cusps) {
       aspects:aspectAgencies,
       axisConjunctions
     };
-    const allHouses=unique([Object.values(fourFold),nodeAgency.starLord.houses,nodeAgency.signLord.houses,aspectAgencies.map(a=>a.houses),axisConjunctions.map(a=>a.houses)]);
-    return {name:p.name,star:p.star,sub:p.sub,...fourFold,allHouses,planet:basic(p),starHouses:basic(star),subHouses:basic(sub),nodeAgency};
+    // A node's usable agency is its placement, sign lord, received aspects,
+    // and node-axis conjunctions. Its nakshatra lord remains visible as a
+    // relationship, but is not folded into this carrier set.
+    const carrierHouses=unique([[p.house],nodeAgency.signLord.houses,aspectAgencies.map(a=>a.houses),axisConjunctions.map(a=>a.houses)]);
+    return {name:p.name,star:p.star,sub:p.sub,...fourFold,allHouses:carrierHouses,carrierHouses,planet:basic(p),starHouses:basic(star),subHouses:basic(sub),nodeAgency};
+  });
+  const byName=Object.fromEntries(rows.map(p=>[p.name,p]));
+  return rows.map(p=>{
+    if(p.nodeAgency) return p;
+    const starNode=byName[p.star],subNode=byName[p.sub];
+    const starHouses=starNode?.carrierHouses??p.starHouses;
+    const subHouses=subNode?.carrierHouses??p.subHouses;
+    return {
+      ...p,
+      starHouses,
+      subHouses,
+      allHouses:unique([p.allHouses,starNode?.carrierHouses??[],subNode?.carrierHouses??[]])
+    };
   });
 }
 export function dms(lon) {

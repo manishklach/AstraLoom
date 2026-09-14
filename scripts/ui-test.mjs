@@ -12,7 +12,7 @@ try{
   assert.equal(await page.locator('.north-chart g').count(),12);
   await page.getByRole('button',{name:'South Indian',exact:true}).click();assert.match(await page.locator('.chart-center').innerText(),/Virgo/);
   await page.getByRole('button',{name:'North Indian',exact:true}).click();
-  assert.equal(await page.locator('tbody tr').filter({has:page.getByRole('rowheader',{name:'Jupiter R',exact:true})}).locator('.house-numbers').innerText(),'1, 4, 7, 10, 12');
+  assert.equal(await page.locator('tbody tr').filter({has:page.getByRole('rowheader',{name:'Jupiter R',exact:true})}).locator('.house-numbers').innerText(),'1, 2, 4, 7, 9, 10, 11, 12');
   checks.push('North/South Indian toggle, 12 North Indian houses, numbered planet significations');
   await page.screenshot({path:`${artifact}/desktop.png`,fullPage:true});
   await page.getByRole('button',{name:'Cusps & sub-lords',exact:true}).click();
@@ -30,7 +30,7 @@ try{
   await page.locator('#date-zone').selectOption('UTC');assert.match(await page.locator('.period').first().innerText(),/\+00:00/);
   checks.push('All four dasha levels, selection, date jump, cycles, Now and UTC display');
   await page.screenshot({path:`${artifact}/dasha.png`,fullPage:true});
-  await page.getByRole('button',{name:'Significations',exact:true}).click();assert.equal(await page.locator('.sig-card').count(),9);assert.match(await page.locator('.sig-card').filter({has:page.getByRole('heading',{name:'Ketu',exact:true})}).innerText(),/Aspect · Saturn \(10th\)/);assert.match(await page.locator('.sig-card').filter({has:page.getByRole('heading',{name:'Rahu',exact:true})}).innerText(),/Rahu same sign · Sun/);checks.push('Four-fold and expanded Rahu/Ketu significations');
+  await page.getByRole('button',{name:'Significations',exact:true}).click();assert.equal(await page.locator('.sig-card').count(),9);assert.match(await page.locator('.sig-card').filter({has:page.getByRole('heading',{name:'Ketu',exact:true})}).innerText(),/Aspect · Saturn \(10th\)/);assert.match(await page.locator('.sig-card').filter({has:page.getByRole('heading',{name:'Rahu',exact:true})}).innerText(),/Rahu same sign · Sun/);const marsCard=page.locator('.sig-card').filter({has:page.getByRole('heading',{name:'Mars',exact:true})});assert.match(await marsCard.innerText(),/Star · Rahu\s+1, 2, 9, 11, 12/);assert.match(await marsCard.innerText(),/Sub · Rahu\s+1, 2, 9, 11, 12/);assert.match(await marsCard.locator('.number-chips').innerText(),/1\s+2\s+3\s+8\s+9\s+11\s+12/);checks.push('Four-fold and propagated Rahu/Ketu significations');
   await page.locator('summary').click();await page.locator('[name=node]').selectOption('true');await page.locator('#calculate').click();assert.equal(await page.locator('.pill').innerText(),'True node');
   await page.locator('[name=date]').fill('2024-03-10');await page.locator('[name=hour]').selectOption('2');await page.locator('[name=minute]').fill('30');await page.locator('[name=zone]').fill('America/New_York');await page.locator('#calculate').click();assert.match(await page.locator('#error').innerText(),/did not exist/);checks.push('Node setting and DST gap error');
   await page.locator('[name=date]').fill('2024-11-03');await page.locator('[name=hour]').selectOption('1');await page.locator('#calculate').click();assert.match(await page.locator('#error').innerText(),/occurred twice/);
