@@ -10,7 +10,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const sample={date:'1975-10-19',hour:'5',minute:'55',second:'0',ampm:'AM',zone:'Asia/Kolkata',lat:19.076,lon:72.8777,place:'Mumbai, Maharashtra, India',fold:'reject',node:'mean',yearDays:365.25};
 let swe,chart,tab='birth',chartStyle='north',cycle=0,path=[],displayZone='birth',searchTimer,searchAbort,searchGeneration=0;
 document.querySelector('#app').innerHTML=`
-<header><a class="brand" href="/" aria-label="KP Atlas home"><span class="brand-icon">✧</span> KP <b>ATLAS</b></a><span class="header-note">A personal astrology workspace</span><span class="engine" id="engine">Loading ephemeris…</span></header>
+<header><a class="brand" href="/" aria-label="KP Atlas home"><span class="brand-icon">✧</span> KP <b>ATLAS</b></a><span class="header-note">A personal astrology workspace</span><span class="engine" id="engine">Loading ephemeris…</span><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode"><span aria-hidden="true">☾</span></button></header>
 <main><aside><div class="aside-heading"><span class="eyebrow">THE STARTING POINT</span><h1>Birth details</h1><p>A precise time. A place in the world.</p></div>
 <form id="birth-form"><label>Date of birth<input name="date" type="date" min="1800-01-01" max="2399-12-31" required></label>
 <fieldset><legend>Time of birth</legend><div class="time-fields"><label>Hour<select name="hour">${Array.from({length:12},(_,i)=>`<option>${i+1}</option>`).join('')}</select></label><label>Min<input name="minute" type="number" min="0" max="59" required></label><label>Sec<input name="second" type="number" min="0" max="59" required></label><label>AM/PM<select name="ampm"><option>AM</option><option>PM</option></select></label></div></fieldset>
@@ -84,5 +84,9 @@ function render(){
     document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{const level=+b.dataset.level;path[level]=(level===0?mahadashas(chart.seed,cycle):children(path[level-1]))[+b.dataset.index];for(let i=level+1;i<4;i++)path[i]=children(path[i-1])[0];render();});
   }
 }
+const themeKey='kp-atlas-theme';
+function syncThemeToggle(){const dark=document.documentElement.dataset.theme==='dark';const label=`Switch to ${dark?'light':'dark'} mode`;const toggle=$('#theme-toggle');toggle.setAttribute('aria-label',label);toggle.title=label;toggle.querySelector('span').textContent=dark?'☀':'☾';}
+function setTheme(theme){document.documentElement.dataset.theme=theme;try{localStorage.setItem(themeKey,theme)}catch{}syncThemeToggle();}
+$('#theme-toggle').addEventListener('click',()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'));syncThemeToggle();
 async function init(){try{const libraryURL=new URL('/vendor/swisseph/src/swisseph.js',location.origin).href;const {default:SwissEph}=await import(/* @vite-ignore */ libraryURL);swe=new SwissEph();await swe.initSwissEph();$('#engine').textContent='Swiss Ephemeris · ready';$('#calculate').disabled=false;$('#calculate').textContent='Calculate chart →';run();}catch(e){$('#engine').textContent='Ephemeris unavailable';$('#results').innerHTML='<div class="loading-card"><h2>Could not load the ephemeris</h2><p>Reload the page to retry. A full download is needed before calculations can run.</p></div>';fail(e);}}
 init();

@@ -8,6 +8,13 @@ const page=await browser.newPage({viewport:{width:1440,height:1100}}),errors=[],
 page.on('pageerror',e=>errors.push(e.message));
 try{
   await page.goto(base);await page.waitForSelector('.north-chart');
+  const initialTheme=await page.locator('html').getAttribute('data-theme');
+  const initialBackground=await page.evaluate(()=>getComputedStyle(document.body).backgroundColor);
+  await page.locator('#theme-toggle').click();
+  const selectedTheme=await page.locator('html').getAttribute('data-theme');
+  assert.notEqual(selectedTheme,initialTheme);assert.notEqual(await page.evaluate(()=>getComputedStyle(document.body).backgroundColor),initialBackground);
+  await page.reload();await page.waitForSelector('.north-chart');assert.equal(await page.locator('html').getAttribute('data-theme'),selectedTheme);
+  await page.locator('#theme-toggle').click();assert.equal(await page.locator('html').getAttribute('data-theme'),initialTheme);checks.push('Light/dark control changes palette and persists the selected theme');
   assert.match(await page.locator('.north-chart').getAttribute('aria-label'),/Virgo/);
   assert.equal(await page.locator('.north-chart g').count(),12);
   await page.getByRole('button',{name:'South Indian',exact:true}).click();assert.match(await page.locator('.chart-center').innerText(),/Virgo/);

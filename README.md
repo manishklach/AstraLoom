@@ -38,6 +38,7 @@ The browser test defaults to installed Microsoft Edge. Set `BROWSER_CHANNEL=chro
 - Current Vimshottari MD / AD / PD / Sookshma; four-level navigation, date jump, previous/next 120-year cycles, local or UTC timestamps.
 - Four-fold KP significations plus separate planet/star/sub house relationships and node sign-lord proxies.
 - Mean/true nodes and selectable 365.25, 365.25636 or 360-day dasha year.
+- Light and dark colour themes. KP Atlas uses the device preference on first visit and remembers a manually selected theme only in the browser.
 
 ## Calculation contract
 
