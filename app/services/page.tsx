@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import ThemeToggle from '../theme-toggle';
 
 const themes = [
   ['♡', 'Love & relationships', 'Bring focus to connection, communication, compatibility, or a relationship decision.'],
@@ -20,7 +21,7 @@ export default function ServicesPage() {
   return <main className="service-page">
     <header className="landing-header service-header">
       <Link href="/" className="landing-brand"><span>✧</span> <b>AstraLoom</b></Link>
-      <nav aria-label="Main navigation"><Link href="/">Home</Link><a href="#consultations">Consultations</a><a href="#how-it-works">How it works</a><a href="#questions">FAQs</a><Link className="landing-nav-cta" href="/studio/">Create your chart</Link></nav>
+      <nav aria-label="Main navigation"><Link href="/">Home</Link><a href="#consultations">Consultations</a><a href="#how-it-works">How it works</a><a href="#questions">FAQs</a><Link className="landing-nav-cta" href="/studio/">Create your chart</Link><ThemeToggle/></nav>
     </header>
     <section className="service-hero">
       <div className="service-hero-copy"><p className="landing-kicker">PERSONAL ASTROLOGY CONSULTATIONS</p><h1>Ask with intention.<br/><em>See the timing clearly.</em></h1><p>Every AstraLoom consultation begins with your saved birth chart and one focused question. We consider the chart, planetary periods, and current transits to bring perspective to the moment you are in.</p><div className="service-promise"><span>✦ Private chart context</span><span>◌ One focused question</span><span>⌁ $10 each</span></div><Link className="landing-primary" href="/studio/">Create your chart <b>→</b></Link></div>

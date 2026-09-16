@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import ThemeToggle from './theme-toggle';
 
 const areas=[
   ['♡','Relationships','Explore partnership patterns, communication, and the timing around connection.'],
@@ -13,7 +14,7 @@ export default function Home(){
   return <main className="landing-page">
     <header className="landing-header">
       <Link href="/" className="landing-brand"><span>✧</span> <b>AstraLoom</b></Link>
-      <nav aria-label="Main navigation"><a href="#about">About</a><Link href="/services">Services</Link><a href="#how-it-works">How it works</a><Link className="landing-nav-cta" href="/studio/">Start a consultation</Link></nav>
+      <nav aria-label="Main navigation"><a href="#about">About</a><Link href="/services">Services</Link><a href="#how-it-works">How it works</a><Link className="landing-nav-cta" href="/">Start a consultation</Link><ThemeToggle/></nav>
     </header>
     <section className="landing-hero">
       <div className="landing-hero-copy"><p className="landing-kicker">PERSONAL ASTROLOGY CONSULTATIONS</p><h1>Clarity for the<br/><em>next chapter.</em></h1><p className="landing-lede">AstraLoom combines a precise birth chart with a focused, question-led consultation—helping you look at the moment in front of you with more perspective.</p><div className="landing-trust"><span>✦ Private & personal</span><span>◌ $10 per question</span><span>⌁ Chart-led guidance</span></div><div className="landing-actions"><Link className="landing-primary" href="/studio/">Create your chart <b>→</b></Link><Link className="landing-secondary" href="/services">Explore consultations</Link></div></div>
