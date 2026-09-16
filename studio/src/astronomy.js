@@ -43,3 +43,15 @@ export function calculate(swe,input) {
   const yearDays=Number(input.yearDays??365.25);
   return {input:{...input,lat,lon,yearDays},time,jd,jdTT:julian.tt,ayanamsa:swe.get_ayanamsa_ex_ut(jd,swe.SEFLG_SWIEPH),version:swe.version(),cusps,planets,significations:significations(planets,cusps),seed:seedDasha(time.ms,planets.find(p=>p.name==='Moon').longitude,yearDays)};
 }
+
+export function currentTransits(swe,natal) {
+  const utc=new Date(),julian=utcJulianDay(swe,utc),jd=julian.ut1;
+  swe.set_sid_mode(swe.SE_SIDM_KRISHNAMURTI,0,0);
+  const flags=swe.SEFLG_SWIEPH|swe.SEFLG_SPEED|swe.SEFLG_SIDEREAL;
+  const natalCusps=natal.cusps.map(c=>c.longitude);
+  const bodies=[['Sun',0],['Moon',1],['Mars',4],['Mercury',2],['Jupiter',5],['Venus',3],['Saturn',6],['Rahu',natal.input.node==='true'?11:10]];
+  const planets=bodies.map(([name,id])=>{const p=position(swe,jd,id,flags);return {name,...kp(p[0]),latitude:p[1],speed:p[3],retrograde:p[3]<0,natalHouse:houseOf(p[0],natalCusps)};});
+  const rahu=planets.at(-1),ketuLon=mod(rahu.longitude+180);
+  planets.push({...rahu,...kp(ketuLon),name:'Ketu',latitude:-rahu.latitude,natalHouse:houseOf(ketuLon,natalCusps)});
+  return {ms:utc.getTime(),utc:utc.toISOString(),ayanamsa:swe.get_ayanamsa_ex_ut(jd,swe.SEFLG_SWIEPH),planets};
+}
