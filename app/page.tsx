@@ -1,2 +1,2 @@
 import {redirect} from 'next/navigation';
-export default function Home(){redirect('/studio/index.html');}
+export default function Home(){redirect('/studio/');}
