@@ -2,7 +2,7 @@
 
 ## Scope
 
-This report records the checks completed for KP Atlas version 1.0.0, using the built-in sample:
+This report records the checks completed for AstraLoom version 1.0.0, using the built-in sample:
 
 | Input | Value |
 | --- | --- |
