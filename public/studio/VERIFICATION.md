@@ -9,7 +9,7 @@ This report records the checks completed for AstraLoom version 1.0.0, using the 
 | Birth date | 19 October 1975 |
 | Birth time | 05:55:00 AM, Asia/Kolkata (UTC+05:30) |
 | Place | Mumbai, India — 19.07600 N, 72.87770 E |
-| Settings | Krishnamurti ayanamsa mode 5, sidereal Placidus, mean node, 365.25-day Vimshottari year |
+| Settings | precision sidereal ayanamsa, sidereal Placidus, mean node, 365.25-day Vimshottari year |
 
 ## Sample results
 
@@ -37,5 +37,5 @@ The requested Virgo ascendant and Jupiter 10th-cusp sub-lord are both confirmed.
 
 - Place search returns city-centre coordinates. Users should replace these with a more exact birthplace where the recorded time or location is near a cusp/sub boundary.
 - Timezone history comes from the browser’s IANA data. Historical local records can be incomplete or differ by jurisdiction.
-- Different KP schools may apply additional node representation, aspects, conjunctions, or significator strength rules. Those are deliberately not inferred by the program.
+- Different astrological schools may apply additional node representation, aspects, conjunctions, or significator strength rules. Those are deliberately not inferred by the program.
 - Period dates depend on the selected dasha-year convention. The default is 365.25 fixed days and should be matched when comparing an external report.

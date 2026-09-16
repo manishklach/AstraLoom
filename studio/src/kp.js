@@ -40,7 +40,7 @@ export function significations(planets,cusps) {
   const isNode=p=>p.name==='Rahu'||p.name==='Ketu';
   const planetsWithAspects=planets.filter(p=>!isNode(p));
   const vedicAspects={Sun:[7],Moon:[7],Mercury:[7],Venus:[7],Mars:[4,7,8],Jupiter:[5,7,9],Saturn:[3,7,10]};
-  // A conjunction here means planets sharing a sidereal sign. KP practitioners
+  // A conjunction here means planets sharing a sidereal sign. stellar-practice practitioners
   // commonly apply this sign-level node agency; it is intentionally shown as
   // a source rather than silently blended into the four-fold table.
   const axisConjunctions=planets.filter(isNode).flatMap(node=>

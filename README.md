@@ -1,10 +1,10 @@
 # AstraLoom
 
-AstraLoom is a private astrology workspace for precise sidereal birth charts, Placidus cusps, KP stellar divisions, and Vimshottari periods through Pran dasha.
+AstraLoom is a private astrology workspace for precise sidereal birth charts, Placidus cusps, stellar divisions, and Vimshottari periods through Pran dasha.
 
 ## What it does
 
-- Calculates chart positions locally with Swiss Ephemeris and Krishnamurti ayanamsa.
+- Calculates chart positions locally with Swiss Ephemeris and precision sidereal ayanamsa.
 - Shows North and South Indian charts, full cusp chains, significations, and MD → AD → PD → Sookshma → Pran navigation.
 - Resolves IANA timezones and DST edge cases for birth details.
 - Uses ChatGPT sign-in for a private **My profile** area.
@@ -29,7 +29,7 @@ The chart client is under `studio/`; the account pages and profile API are under
 
 ## Calculation conventions
 
-Sidereal Krishnamurti mode 5, Placidus houses, geocentric apparent positions, mean/true node selection, and deterministic integer-grid nakshatra/sub/sub-sub division. The default Vimshottari year is 365.25 days. See the [verification report](studio/public/VERIFICATION.md) for the Mumbai sample and reference checks.
+Sidereal precision mode, Placidus houses, geocentric apparent positions, mean/true node selection, and deterministic integer-grid nakshatra/sub/sub-sub division. The default Vimshottari year is 365.25 days. See the [verification report](studio/public/VERIFICATION.md) for the Mumbai sample and reference checks.
 
 ## License
 
