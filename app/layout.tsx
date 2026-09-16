@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "AstraLoom · Precise astrology workspace",
-  description: "Birth charts, Placidus cusps and saved astrology profiles.",
+  description: "Personal astrology charts, question-led consultations, and saved profiles.",
   other: {
     "codex-preview": "development",
   },
