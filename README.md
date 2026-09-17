@@ -1,36 +1,78 @@
 # AstraLoom
 
-AstraLoom is a private astrology workspace for precise sidereal birth charts, Placidus cusps, stellar divisions, and Vimshottari periods through Pran dasha.
+**AstraLoom** is a private astrology workspace and public consultation site. It creates precise sidereal birth charts, supports saved profiles, and presents planetary periods and transits in a clear, navigable interface.
 
-## What it does
+**Live site:** https://astraloom.abc123xyza.chatgpt.site
 
-- Calculates chart positions locally with Swiss Ephemeris and precision sidereal ayanamsa.
-- Shows North and South Indian charts, full cusp chains, significations, and MD → AD → PD → Sookshma → Pran navigation.
-- Resolves IANA timezones and DST edge cases for birth details.
-- Uses ChatGPT sign-in for a private **My profile** area.
-- Saves named birth profiles to account-owned encrypted platform storage. A profile can be opened directly in the chart workspace.
+## Highlights
 
-## Privacy
+- Swiss Ephemeris WASM calculations for sidereal planetary positions, Placidus cusps, and mean or true lunar nodes.
+- Simple birth entry with 12-hour time, AM/PM, IANA timezone, DST handling, place search, and editable coordinates.
+- North Indian, South Indian, and Bhava Chalit birth-chart views.
+- Full cusp chart with sign, nakshatra, star-lord, sub-lord, and sub-sub-lord chains.
+- Deterministic Vimshottari navigation through **MD → AD → PD → Sookshma → Pran**, including exact start/end timestamps and any-date navigation.
+- A color-coded dasha hierarchy: indigo MD, violet AD, teal PD, gold Sookshma, and rose Pran. Planetary glyph tokens make each period easy to identify.
+- Planet significations with house numbers, stellar relationships, and expanded Rahu/Ketu agency.
+- Current-transit table plus a **North Indian transit chart** laid out from the natal ascendant.
+- Light and dark themes that persist between workspace, About, Services, and profile pages.
+- ChatGPT sign-in and private saved birth profiles. Saved profiles retain a chart snapshot so they reopen without needing another calculation.
 
-Birth-profile records are associated with the signed-in ChatGPT user ID. The application checks that identity on every profile read and write, so one account cannot retrieve another account’s data. Astronomy calculations run in the browser. Place-search text is sent to Open-Meteo only when search is used.
+## How calculations work
 
-## Development
+AstraLoom uses a precision sidereal ayanamsa with Placidus houses. The Nakshatra, sub-lord, and sub-sub-lord calculations use deterministic Vimshottari proportional divisions rather than approximated astronomical values.
 
-Requires Node.js 22.13+.
+Rahu and Ketu significations include their placement, sign-lord agency, received traditional aspects, and same-sign conjunctions on the node axis. Planets whose star or sub-lord is a node receive that complete node agency.
 
-```sh
+The dasha year can be selected as 365.25 days (default), 365.25636 days, or 360 days. Match the convention when comparing period dates with another report.
+
+## Rendering and privacy
+
+The public Home, About, Services, and Profile routes are server-rendered for quick initial loading and indexable public content. The interactive chart workspace loads Swiss Ephemeris in the browser only when a chart is calculated. This keeps birth-chart computation local to the visitor’s browser.
+
+Saved birth profiles are associated with the authenticated ChatGPT account. The profile API checks the account identity on every read and write. Place-search text is sent to the selected geocoding provider only when a user searches for a place.
+
+## Local development
+
+Requires Node.js 22.13 or later.
+
+```bash
 npm ci
 npm run db:generate
 npm run build
 npm run start
 ```
 
-The chart client is under `studio/`; the account pages and profile API are under `app/`. The D1 schema and generated migrations are in `db/` and `drizzle/`.
+Common commands:
 
-## Calculation conventions
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the framework development server. |
+| `npm run build` | Build the Vite chart client and server-rendered application. |
+| `npm run start` | Serve the generated Cloudflare Worker locally. |
+| `npm run lint` | Run ESLint. |
+| `npm run db:generate` | Generate Drizzle migrations. |
 
-Sidereal precision mode, Placidus houses, geocentric apparent positions, mean/true node selection, and deterministic integer-grid nakshatra/sub/sub-sub division. The default Vimshottari year is 365.25 days. See the [verification report](studio/public/VERIFICATION.md) for the Mumbai sample and reference checks.
+## Project structure
+
+| Path | Purpose |
+| --- | --- |
+| `studio/` | Interactive chart workspace, Swiss Ephemeris integration, dasha engine, and chart renderers. |
+| `app/` | Server-rendered public pages, profile page, API routes, and theme controls. |
+| `db/` and `drizzle/` | D1 schema and generated migrations for saved profiles. |
+| `studio/public/VERIFICATION.md` | Calculation verification report and remaining assumptions. |
+| `.openai/hosting.json` | Sites hosting configuration. |
+
+## Verification
+
+The built-in sample is **19 October 1975, 05:55 AM, Mumbai, India**. It verifies:
+
+- Virgo ascendant at 21°41′48″.
+- Gemini 10th cusp at 21°18′26″ with Jupiter as star and sub-lord.
+- Planetary longitudes, houses, nakshatra, star/sub/sub-sub chains, and both node modes against a PySwissEph reference.
+- Nested Vimshottari boundaries through Pran, longitude boundaries, cusp allocation, timezone edge cases, and user-interface states.
+
+Read the full [verification report](studio/public/VERIFICATION.md).
 
 ## License
 
-AGPL-3.0-or-later. Swiss Ephemeris and other third-party notices remain in [THIRD_PARTY.md](THIRD_PARTY.md).
+AGPL-3.0-or-later. See [THIRD_PARTY.md](THIRD_PARTY.md) for Swiss Ephemeris and other third-party notices.
