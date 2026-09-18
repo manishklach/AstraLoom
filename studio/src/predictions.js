@@ -5,6 +5,8 @@
 //   planetVector  = 0.20*Planet + 0.40*Nak + 0.40*Sub        (per dasha lord)
 //   dashaVector   = 0.35*MD + 0.30*AD + 0.22*PD + 0.13*SD     (per house h=1..12)
 //   RawDirection  = 0.30*P + 0.45*D + 0.15*(C*2) + 0.10*R     (C is -50..50, x2 normalises to -100..100)
+//   R             = 100*raw/(raw+30) soft-cap over domain-relevant houses only,
+//                   so repetition discriminates instead of saturating at 100.
 //   Direction     = clamp(RawDirection, -100, +100)
 //   Intensity     = 0..100 (activation magnitude, direction-agnostic)
 //   Confidence    = agreement among N,MD,AD,PD,SD
@@ -20,10 +22,11 @@ export const WEIGHTS = {
   natal: 0.30, dasha: 0.45, combo: 0.15, repetition: 0.10,
 };
 
-// Anchor cusp per domain + house sets. Secondary counts half.
+// Anchor cusp(s) per domain + house sets. Secondary counts half.
+// Dual anchors (spec section 5) average their CSL promise vectors.
 export const DOMAINS = {
   education: {
-    label: 'Education', anchor: 4, supportCusps: [2, 5, 11],
+    label: 'Education', anchor: [4, 9],
     primary: [4, 5, 9, 11], secondary: [2, 3], challenging: [8, 12],
     combos: [
       { houses: [4, 9, 11], score: 25, label: 'strong study/fortune combination' },
@@ -32,7 +35,7 @@ export const DOMAINS = {
     ],
   },
   career: {
-    label: 'Career', anchor: 10, supportCusps: [2, 6, 7, 11],
+    label: 'Career', anchor: [10],
     primary: [2, 6, 10, 11], secondary: [1, 7], challenging: [8, 12],
     combos: [
       { houses: [2, 6, 10, 11], score: 30, label: 'strong career success' },
@@ -44,7 +47,7 @@ export const DOMAINS = {
     ],
   },
   relationships: {
-    label: 'Relationships', anchor: 7, supportCusps: [2, 5, 11],
+    label: 'Relationships', anchor: [7],
     primary: [2, 5, 7, 11], secondary: [4], challenging: [1, 6, 10, 12],
     combos: [
       { houses: [2, 7, 11], score: 28, label: 'union/marriage pattern' },
@@ -54,7 +57,7 @@ export const DOMAINS = {
     ],
   },
   wealth: {
-    label: 'Wealth', anchor: 2, supportCusps: [5, 9, 10],
+    label: 'Wealth', anchor: [2, 11],
     primary: [2, 5, 9, 11], secondary: [7, 10], challenging: [6, 8, 12],
     combos: [
       { houses: [2, 5, 11], score: 25, label: 'investment/speculative gains' },
@@ -63,7 +66,7 @@ export const DOMAINS = {
     ],
   },
   health: {
-    label: 'Health & Wellbeing', anchor: 1, supportCusps: [8, 12],
+    label: 'Health & Wellbeing', anchor: [1, 6],
     primary: [1, 5, 11], secondary: [3], challenging: [6, 8, 12],
     combos: [
       { houses: [1, 5, 11], score: 22, label: 'vitality/support pattern' },
@@ -72,7 +75,7 @@ export const DOMAINS = {
     ],
   },
   litigation: {
-    label: 'Litigation', anchor: 6, supportCusps: [7, 8, 11, 12],
+    label: 'Litigation', anchor: [6],
     primary: [6, 11], secondary: [3, 7], challenging: [8, 12],
     combos: [
       { houses: [6, 11], score: 28, label: 'competitive victory pattern' },
@@ -84,19 +87,54 @@ export const DOMAINS = {
 
 export const DOMAIN_KEYS = Object.keys(DOMAINS);
 
-// Subcategory overrides: same engine, narrower house focus.
+// Subcategory overrides: same engine, narrower house focus (spec section 7).
+// Secondary/challenging houses stay domain-level; only the primary lens narrows.
 export const SUBCATEGORIES = {
+  education: {
+    admission: { primary: [4, 9, 11] },
+    performance: { primary: [4, 5, 11] },
+    higher: { primary: [5, 9, 11] },
+    research: { primary: [5, 8, 9] },
+    completion: { primary: [4, 11] },
+    interruption: { primary: [4, 8, 12] },
+  },
   career: {
-    employment: { primary: [2, 6, 10, 11] },
+    employment: { primary: [6, 10, 11] },
+    promotion: { primary: [2, 6, 10, 11] },
     entrepreneurship: { primary: [2, 7, 10, 11] },
+    opportunity: { primary: [6, 10, 11] },
+    jobloss: { primary: [8, 10, 12] },
     foreign: { primary: [10, 11, 12] },
   },
-  wealth: {
-    investments: { primary: [2, 5, 11] },
-    property: { primary: [2, 4, 11] },
-  },
   relationships: {
+    new: { primary: [5, 7, 11] },
     marriage: { primary: [2, 7, 11] },
+    harmony: { primary: [2, 5, 7, 11] },
+    separation: { primary: [1, 6, 10] },
+    divorce: { primary: [6, 8, 12] },
+  },
+  wealth: {
+    income: { primary: [2, 6, 11] },
+    accumulation: { primary: [2, 9, 11] },
+    investments: { primary: [2, 5, 11] },
+    speculation: { primary: [5, 6, 11] },
+    property: { primary: [2, 4, 11] },
+    debtloss: { primary: [6, 8, 12] },
+  },
+  health: {
+    vitality: { primary: [1, 5, 11] },
+    illness: { primary: [6, 11] },
+    hospitalization: { primary: [6, 12] },
+    injury: { primary: [8, 12] },
+    emotional: { primary: [1, 8, 12] },
+  },
+  litigation: {
+    disputes: { primary: [6, 7] },
+    initiation: { primary: [3, 6] },
+    favorable: { primary: [6, 11] },
+    adverse: { primary: [8, 12] },
+    confinement: { primary: [12] },
+    settlement: { primary: [2, 7, 11] },
   },
 };
 
@@ -177,15 +215,22 @@ export function combinationScore(activation, domainKey) {
   return { total: clamp(total, -50, 50), hits, contexts };
 }
 
-// Repetition: cross-dasha presence + intra-planet Planet/Nak/Sub repeats. Capped at 30 raw.
-export function repetitionBonus(lords, byName) {
+// Repetition: cross-dasha presence + intra-planet Planet/Nak/Sub repeats.
+// Counts only domain-relevant houses (primary + secondary + challenging),
+// otherwise every chart saturates and repetition stops discriminating.
+// Soft-cap R = 100*raw/(raw+30): bounded, no hard-cap cliff.
+export function repetitionBonus(lords, byName, domainKey, subcategory) {
+  const d = DOMAINS[domainKey];
+  if (!d) throw new Error(`Unknown domain: ${domainKey}`);
+  const sub = subcategory && SUBCATEGORIES[domainKey]?.[subcategory];
+  const relevant = new Set([...(sub?.primary || d.primary), ...d.secondary, ...d.challenging]);
   const present = (lord, h) => {
     const pv = planetHouseVector(byName[lord]);
     return (pv[h] || 0) > 0.05;
   };
   let raw = 0;
   const notes = [];
-  for (let h = 1; h <= 12; h++) {
+  for (const h of relevant) {
     const count = lords.filter((l) => present(l, h)).length;
     if (count >= 4) { raw += 20; notes.push(`house ${h} in MD+AD+PD+SD +20`); }
     else if (count === 3) { raw += 12; notes.push(`house ${h} in three dasha levels +12`); }
@@ -193,9 +238,9 @@ export function repetitionBonus(lords, byName) {
   }
   for (const lord of lords) {
     const row = byName[lord];
-    const inPlanet = new Set(row.planet || []);
-    const inStar = new Set(row.starHouses || []);
-    const inSub = new Set(row.subHouses || []);
+    const inPlanet = new Set((row.planet || []).filter((h) => relevant.has(h)));
+    const inStar = new Set((row.starHouses || []).filter((h) => relevant.has(h)));
+    const inSub = new Set((row.subHouses || []).filter((h) => relevant.has(h)));
     const all = new Set([...inPlanet, ...inStar, ...inSub]);
     for (const h of all) {
       const n = (inPlanet.has(h) ? 1 : 0) + (inStar.has(h) ? 1 : 0) + (inSub.has(h) ? 1 : 0);
@@ -203,14 +248,14 @@ export function repetitionBonus(lords, byName) {
       else if (n === 2) { raw += 5; notes.push(`${lord}: house ${h} repeated twice +5`); }
     }
   }
-  raw = Math.min(30, raw);
-  return { raw, scaled: (raw / 30) * 100, notes };
+  return { raw, scaled: (100 * raw) / (raw + 30), notes };
 }
 
-// Cusp activation: running lords tied to the domain anchor CSL.
+// Cusp activation: running lords tied to the domain's primary anchor CSL.
 export function cuspBonus(lords, cusps, byName, domainKey) {
   const d = DOMAINS[domainKey];
-  const cusp = cuspByNumber(cusps, d.anchor);
+  const primaryAnchor = d.anchor[0];
+  const cusp = cuspByNumber(cusps, primaryAnchor);
   if (!cusp) return { bonus: 0, notes: [] };
   const cslName = cusp.sub;
   const cslRow = byName[cslName];
@@ -218,30 +263,35 @@ export function cuspBonus(lords, cusps, byName, domainKey) {
   const notes = [];
   const levels = ['MD', 'AD', 'PD', 'SD'];
   lords.forEach((lord, i) => {
-    if (lord === cslName) { bonus += 15; notes.push(`${lord} ${levels[i]} is the ${d.anchor}th CSL +15`); }
-    else if (cslRow && lord === cslRow.star) { bonus += 10; notes.push(`${lord} ${levels[i]} is star lord of ${d.anchor}th CSL +10`); }
-    else if (cslRow && lord === cslRow.sub) { bonus += 10; notes.push(`${lord} ${levels[i]} is sub lord of ${d.anchor}th CSL +10`); }
-    else if (byName[lord] && (byName[lord].allHouses || byName[lord].carrierHouses || []).includes(d.anchor)) {
-      bonus += 5; notes.push(`${lord} ${levels[i]} signifies cusp ${d.anchor} +5`);
+    if (lord === cslName) { bonus += 15; notes.push(`${lord} ${levels[i]} is the ${primaryAnchor}th CSL +15`); }
+    else if (cslRow && lord === cslRow.star) { bonus += 10; notes.push(`${lord} ${levels[i]} is star lord of ${primaryAnchor}th CSL +10`); }
+    else if (cslRow && lord === cslRow.sub) { bonus += 10; notes.push(`${lord} ${levels[i]} is sub lord of ${primaryAnchor}th CSL +10`); }
+    else if (byName[lord] && (byName[lord].allHouses || byName[lord].carrierHouses || []).includes(primaryAnchor)) {
+      bonus += 5; notes.push(`${lord} ${levels[i]} signifies cusp ${primaryAnchor} +5`);
     }
   });
   return { bonus: Math.min(30, bonus), notes, cslName };
 }
 
 // Score one instant (one MD/AD/PD/SD chain) for one domain.
+// P averages the promise vectors of all anchor CSLs (linear: mean of vectors,
+// then scored — identical to the mean of per-anchor scores).
 export function scoreInstant({ significations, cusps, lords, domainKey, subcategory }) {
   const byName = sigMap(significations);
   const d = DOMAINS[domainKey];
-  const cusp = cuspByNumber(cusps, d.anchor);
-  const cslRow = byName[cusp?.sub];
-  if (!cslRow) throw new Error(`Anchor CSL planet missing for cusp ${d.anchor}`);
-  const natalVec = natalPromiseVector(cslRow);
+  const cslNames = d.anchor.map((n) => cuspByNumber(cusps, n)?.sub);
+  if (cslNames.some((n) => !byName[n])) throw new Error(`Anchor CSL planet missing for cusp ${d.anchor.join('/')}`);
+  const natalVec = {};
+  for (const n of cslNames) {
+    const pv = natalPromiseVector(byName[n]);
+    for (const [h, v] of Object.entries(pv)) natalVec[h] = (natalVec[h] || 0) + v / cslNames.length;
+  }
   const activation = dashaActivationVector(lords, byName);
   const P = scoreVectorAgainstDomain(natalVec, domainKey, subcategory).direction;
   const D = scoreVectorAgainstDomain(activation, domainKey, subcategory).direction;
   const { total: comboRaw, hits, contexts } = combinationScore(activation, domainKey);
-  const { raw: repRaw, scaled: R, notes: repNotes } = repetitionBonus(lords, byName);
-  const { bonus: cuspB, notes: cuspNotes, cslName } = cuspBonus(lords, cusps, byName, domainKey);
+  const { raw: repRaw, scaled: R, notes: repNotes } = repetitionBonus(lords, byName, domainKey, subcategory);
+  const { bonus: cuspB, notes: cuspNotes } = cuspBonus(lords, cusps, byName, domainKey);
   const C = clamp(comboRaw + cuspB, -50, 50);
   const rawDirection = WEIGHTS.natal * P + WEIGHTS.dasha * D + WEIGHTS.combo * (C * 2) + WEIGHTS.repetition * R;
   const direction = clamp(Math.round(rawDirection), -100, 100);
@@ -250,7 +300,7 @@ export function scoreInstant({ significations, cusps, lords, domainKey, subcateg
   const scored = scoreVectorAgainstDomain(activation, domainKey, subcategory);
   const mag = clamp((scored.supportNorm + scored.challengeNorm) / 2, 0, 1);
   const comboNorm = Math.min(1, Math.abs(C) / 40);
-  const repNorm = repRaw / 30;
+  const repNorm = clamp(repRaw / 60, 0, 1);
   const intensity = Math.round(clamp(100 * (0.55 * mag + 0.25 * repNorm + 0.20 * comboNorm), 0, 100));
 
   // Confidence: agreement among N, MD, AD, PD, SD polarities.
@@ -263,7 +313,7 @@ export function scoreInstant({ significations, cusps, lords, domainKey, subcateg
   const confidence = Math.round(20 + 80 * (Math.max(pos, neg) / levelDirs.length));
 
   const reasons = [
-    `Natal promise (${d.anchor}th CSL ${cslName}) scores ${Math.round(P)}`,
+    `Natal promise (${d.anchor.map((n, i) => `${n}th CSL ${cslNames[i]}`).join(' + ')}) scores ${Math.round(P)}`,
     `${lords[0]} MD / ${lords[1]} AD / ${lords[2]} PD / ${lords[3]} SD → dasha direction ${Math.round(D)}`,
     ...hits.map((c) => `Combination ${c.houses.join('+')} (${c.label}) ${c.score > 0 ? '+' : ''}${c.score}`),
     ...contexts.map((c) => `Context: ${c.houses.join('+')} (${c.label})`),

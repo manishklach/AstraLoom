@@ -10,7 +10,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sample={date:'1975-10-19',hour:'5',minute:'55',second:'0',ampm:'AM',zone:'Asia/Kolkata',lat:19.076,lon:72.8777,place:'Mumbai, Maharashtra, India',fold:'reject',node:'mean',yearDays:365.25};
 let swe,chart,transit,tab='birth',chartStyle='north',cycle=0,path=[],displayZone='birth',searchTimer,searchAbort,searchGeneration=0;
-let predRange='5',predSelected={career:true,wealth:true,relationships:false,education:false,health:false,litigation:false},predQuarterLabel=null;
+let predRange='10',predSelected={career:true,wealth:true,relationships:false,education:false,health:false,litigation:false},predQuarterLabel=null;
 document.querySelector('#app').innerHTML=`
 <header><a class="brand" href="/" aria-label="AstraLoom home"><span class="brand-icon">✧</span> <b>AstraLoom</b></a><span class="header-note">A personal astrology workspace</span><nav class="workspace-links" aria-label="Workspace navigation"><button class="new-chart" id="new-chart" type="button">New chart</button><a class="new-chart profile-link" href="/profile">My profile</a><a class="workspace-page-link" href="/about">About us</a><a class="workspace-page-link services-link" href="/services">Services <span aria-hidden="true">↗</span></a></nav><span class="engine" id="engine">Loading ephemeris…</span><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode"><span aria-hidden="true">☾</span></button></header>
 <main><aside><div class="aside-heading"><span class="eyebrow">THE STARTING POINT</span><h1>Birth details</h1><p>A precise time. A place in the world.</p></div>

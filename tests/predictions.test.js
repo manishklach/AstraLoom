@@ -75,12 +75,33 @@ test('combination detection fires 6+10+11 for Mercury-heavy activation', () => {
   assert.ok(hits.some((h) => h.houses.join('+') === '6+10+11'));
 });
 
-test('repetition bonus rewards cross-level recurrence, capped at 30', () => {
+test('repetition bonus rewards cross-level recurrence, soft-capped 0..100', () => {
   const c = chart();
   const byName = Object.fromEntries(c.significations.map((r) => [r.name, r]));
-  const { raw, scaled } = repetitionBonus(['Moon', 'Jupiter', 'Mercury', 'Venus'], byName);
-  assert.ok(raw > 0 && raw <= 30);
-  assert.ok(scaled >= 0 && scaled <= 100);
+  const { raw, scaled } = repetitionBonus(['Moon', 'Jupiter', 'Mercury', 'Venus'], byName, 'career');
+  assert.ok(raw > 0);
+  assert.ok(scaled > 0 && scaled <= 100);
+});
+
+test('repetition discriminates: busy vs quiet lord sets score different R', () => {
+  const c = chart();
+  const busy = scoreInstant({ significations: c.significations, cusps: c.cusps, lords: ['Moon', 'Jupiter', 'Mercury', 'Venus'], domainKey: 'career' });
+  const quiet = scoreInstant({ significations: c.significations, cusps: c.cusps, lords: ['Sun', 'Mars', 'Ketu', 'Mars'], domainKey: 'litigation' });
+  assert.notEqual(busy.R, quiet.R);
+});
+
+test('multi-anchor promise: wealth averages 2nd and 11th CSL vectors', () => {
+  const c = chart();
+  const s = scoreInstant({ significations: c.significations, cusps: c.cusps, lords: ['Moon', 'Jupiter', 'Mercury', 'Venus'], domainKey: 'wealth' });
+  assert.ok(s.reasons[0].includes('2th CSL') && s.reasons[0].includes('11th CSL'));
+});
+
+test('subcategories narrow the lens: investments vs debt-loss differ', () => {
+  const c = chart();
+  const lords = ['Moon', 'Jupiter', 'Mercury', 'Venus'];
+  const a = scoreInstant({ significations: c.significations, cusps: c.cusps, lords, domainKey: 'wealth', subcategory: 'investments' });
+  const b = scoreInstant({ significations: c.significations, cusps: c.cusps, lords, domainKey: 'wealth', subcategory: 'debtloss' });
+  assert.notEqual(a.direction, b.direction);
 });
 
 test('predictQuarter time-weights across a real dasha boundary', () => {
