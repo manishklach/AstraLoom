@@ -44,3 +44,8 @@ next-env.d.ts
 /.codex/
 /outputs/
 /work/
+
+# Local Sites deployment packages and release-note scratch files.
+/.deploy-*.tar
+/.deploy-stage-*/
+/.release-*.md
