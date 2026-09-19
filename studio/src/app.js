@@ -82,10 +82,10 @@ function dashaView(){
 const PRED_COLORS={education:'#587fb8',career:'#6c6bdd',relationships:'#ae5b72',wealth:'#af7a2d',health:'#397f72',litigation:'#9366aa'};
 function predRangeBounds(){
   const now=Date.now(),Y=365.25*86400000;
-  if(predRange==='1')return[now-1*Y,now+1*Y];
-  if(predRange==='10')return[now-5*Y,now+10*Y];
-  if(predRange==='dasha'){const {chain}=chainAt(chart.seed,now);return[chain[0].start,chain[0].end];}
-  return[now-5*Y,now+5*Y];
+  if(predRange==='1')return[now,now+Y];
+  if(predRange==='5')return[now,now+5*Y];
+  if(predRange==='10')return[now,now+10*Y];
+  const {chain}=chainAt(chart.seed,now);return[chain[0].start,chain[0].end];
 }
 function predictionsView(){
   const [s,e]=predRangeBounds();
@@ -124,7 +124,7 @@ function transitView(){
   if(tab==='transits')$('#refresh-transits').onclick=()=>{transit=currentTransits(swe,chart);render();};
   if(tab==='predictions'){
     $('#pred-range').onchange=e=>{predRange=e.target.value;predQuarterLabel=null;render();};
-    document.querySelectorAll('[data-pred-domain]').forEach(c=>c.onchange=()=>{predSelected[c.dataset.predDomain]=c.checked;render();});
+    document.querySelectorAll('[data-pred-domain]').forEach(c=>c.onchange=()=>{predSelected[c.dataset.predDomain]=c.checked;if(!Object.values(predSelected).some(Boolean))predSelected[c.dataset.predDomain]=true;render();});
     document.querySelectorAll('[data-quarter]').forEach(b=>b.addEventListener('click',()=>{predQuarterLabel=b.dataset.quarter;render();}));
   }
   document.querySelectorAll('[data-chart-style]').forEach(b=>b.onclick=()=>{chartStyle=b.dataset.chartStyle;render();});
