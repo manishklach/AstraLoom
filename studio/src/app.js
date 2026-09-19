@@ -84,7 +84,7 @@ function predRangeBounds(){
   const now=Date.now(),Y=365.25*86400000;
   if(predRange==='1')return[now,now+Y];
   if(predRange==='5')return[now,now+5*Y];
-  if(predRange==='10')return[now,now+10*Y];
+  if(predRange==='10')return[now-5*Y,now+5*Y];
   const {chain}=chainAt(chart.seed,now);return[chain[0].start,chain[0].end];
 }
 function predictionsView(){
