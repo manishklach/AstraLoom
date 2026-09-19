@@ -89,15 +89,19 @@ function predictionsView(){
   const {periods,active}=predictionMahadashas(),s=active.start,e=active.end;
   const keys=DOMAIN_KEYS.filter(k=>predSelected[k]);
   const rows=predictRange(chart,s,e,keys.length?keys:['career']);
+  const plottedKeys=keys.length?keys:['career'];
+  const observedMaximum=Math.max(0,...rows.flatMap(r=>plottedKeys.map(k=>Math.abs(r.scores[k].direction))));
+  const plotLimit=observedMaximum<=25?25:observedMaximum<=50?50:observedMaximum<=60?60:100;
+  const axisTicks=[plotLimit,plotLimit/2,0,-plotLimit/2,-plotLimit];
   const W=760,H=280,padL=44,padB=28,plotW=W-padL-16,plotH=H-20-padB;
   const X=i=>rows.length<=1?padL+plotW/2:padL+plotW*i/(rows.length-1);
-  const Y=v=>10+plotH/2-(v/100)*(plotH/2);
-  const lines=(keys.length?keys:['career']).map(k=>{
+  const Y=v=>10+plotH/2-(v/plotLimit)*(plotH/2);
+  const lines=plottedKeys.map(k=>{
     const pts=rows.map((r,i)=>`${X(i).toFixed(1)},${Y(r.scores[k].direction).toFixed(1)}`).join(' ');
     return `<polyline points="${pts}" fill="none" stroke="${PRED_COLORS[k]}" stroke-width="2.5"/>`;
   }).join('');
   const dots=rows.map((r,i)=>{
-    const k=(keys.length?keys:['career'])[0];
+    const k=plottedKeys[0];
     return `<circle cx="${X(i)}" cy="${Y(r.scores[k].direction)}" r="4" fill="#fff" stroke="${PRED_COLORS[k]}" stroke-width="2" data-quarter="${r.label}"><title>${r.label}: ${r.scores[k].direction}</title></circle>`;
   }).join('');
   const sel=rows.find(r=>r.label===predQuarterLabel)||rows.find(r=>s<=Date.now()&&Date.now()<r.end)||rows[0];
@@ -106,9 +110,9 @@ function predictionsView(){
   + `<p class="view-note pred-note">Mathematical indicators from natal promise × dasha activation — not advice. Health &amp; litigation are astrological indicators only, not medical or legal forecasts. Weights: MD 35 · AD 30 · PD 22 · Sookshma 13; Planet 20 · Nak 40 · Sub 40.</p>`
   + `<div class="pred-controls"><div class="pred-toggles">${DOMAIN_KEYS.map(k=>`<label><input type="checkbox" data-pred-domain="${k}" ${predSelected[k]?'checked':''}> ${esc(DOMAINS[k].label)}</label>`).join('')}</div>`
   + `<label class="inline-label">Mahadasha <select id="pred-md">${periods.map(p=>`<option value="${p.start}" ${p.start===active.start?'selected':''}>${p.lord} · ${DateTime.fromMillis(p.start,{zone:chart.time.zone}).toFormat('dd LLL yyyy')} — ${DateTime.fromMillis(p.end,{zone:chart.time.zone}).toFormat('dd LLL yyyy')}</option>`).join('')}</select></label></div>`
-  + `<svg class="pred-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Quarterly prediction chart, favourable up, challenging down">${[100,50,0,-50,-100].map(v=>`<line x1="${padL}" x2="${W-16}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v===0?'#142a40':'#dfe5ec'}"/><text x="6" y="${Y(v)+4}" font-size="10" fill="#67758a">${v>0?'+':''}${v}</text>`).join('')}${lines}${dots}<text x="${padL}" y="${H-6}" font-size="10" fill="#67758a">${rows[0]?.label||''}</text><text x="${W-90}" y="${H-6}" font-size="10" fill="#67758a">${rows[rows.length-1]?.label||''}</text></svg>`
-  + `<p class="hint">Favourable ← 0 → Challenging · dot size is uniform; intensity is shown per quarter below. Click a dot to inspect its WHY trace.</p>`
-  + `<div class="pred-quarters">${rows.map(r=>{const k=(keys.length?keys:['career'])[0];return `<button class="pred-q ${r.label===sel.label?'selected':''}" data-quarter="${r.label}">${r.label}<b>${r.scores[k].direction>0?'+':''}${r.scores[k].direction}</b></button>`;}).join('')}</div>`
+  + `<svg class="pred-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Quarterly prediction chart, favourable up, challenging down, scaled to plus or minus ${plotLimit}">${axisTicks.map(v=>`<line x1="${padL}" x2="${W-16}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v===0?'#142a40':'#dfe5ec'}"/><text x="6" y="${Y(v)+4}" font-size="10" fill="#67758a">${v>0?'+':''}${v}</text>`).join('')}${lines}${dots}<text x="${padL}" y="${H-6}" font-size="10" fill="#67758a">${rows[0]?.label||''}</text><text x="${W-90}" y="${H-6}" font-size="10" fill="#67758a">${rows[rows.length-1]?.label||''}</text></svg>`
+  + `<p class="hint">Favourable ← 0 → Challenging · the graph adapts to this Mahadasha (±${plotLimit}); scores remain on the −100 to +100 model scale. Click a dot to inspect its WHY trace.</p>`
+  + `<div class="pred-quarters">${rows.map(r=>{const k=plottedKeys[0];return `<button class="pred-q ${r.label===sel.label?'selected':''}" data-quarter="${r.label}">${r.label}<b>${r.scores[k].direction>0?'+':''}${r.scores[k].direction}</b></button>`;}).join('')}</div>`
   + `<h3 class="spaced pred-why-title">${esc(sel.label)} — why this score</h3>${why}</div>`;
 }
 function transitView(){
