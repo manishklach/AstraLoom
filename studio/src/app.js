@@ -1,0 +1,194 @@
+import './style.css';
+import {northChart,northChalitChart,northTransitChart,houseNumbers} from './north-chart.js';
+import {calculate,currentTransits,transitsAt} from './astronomy.js';
+import {SIGNS,dms} from './kp.js';
+import {DateTime,formatTime} from './time.js';
+import {chainAt,mahadashas,children,contains} from './dasha.js';
+import {predictRange,DOMAINS,DOMAIN_KEYS,describeDirection,describeIntensity} from './predictions.js';
+import {scoreQuarterTransit} from './transits.js';
+import {headlineFor,findPeaks,quarterDelta,concordance,dashaShiftLabels,gocharaBadges} from './highlights.js';
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sample={date:'1975-10-19',hour:'5',minute:'55',second:'0',ampm:'AM',zone:'Asia/Kolkata',lat:19.076,lon:72.8777,place:'Mumbai, Maharashtra, India',fold:'reject',node:'mean',yearDays:365.25};
+let swe,chart,transit,tab='birth',chartStyle='north',cycle=0,path=[],displayZone='birth',searchTimer,searchAbort,searchGeneration=0;
+let predRange='10',predSelected={career:true,wealth:true,relationships:false,education:false,health:false,litigation:false},predQuarterLabel=null;
+let predTransitGate=true;
+try { const saved=localStorage.getItem('astraloom-transit-gate'); if(saved==='off') predTransitGate=false; } catch {}
+const transitQuarterCache=new Map();
+let transitUnavailable=false;
+document.querySelector('#app').innerHTML=`
+<header><a class="brand" href="/" aria-label="AstraLoom home"><span class="brand-icon">✧</span> <b>AstraLoom</b></a><span class="header-note">A personal astrology workspace</span><nav class="workspace-links" aria-label="Workspace navigation"><button class="new-chart" id="new-chart" type="button">New chart</button><a class="new-chart profile-link" href="/profile">My profile</a><a class="workspace-page-link" href="/about">About us</a><a class="workspace-page-link services-link" href="/services">Services <span aria-hidden="true">↗</span></a></nav><span class="engine" id="engine">Loading ephemeris…</span><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode"><span aria-hidden="true">☾</span></button></header>
+<main><aside><div class="aside-heading"><span class="eyebrow">THE STARTING POINT</span><h1>Birth details</h1><p>A precise time. A place in the world.</p></div>
+<form id="birth-form"><label>Date of birth<input name="date" type="date" min="1800-01-01" max="2399-12-31" required></label>
+<fieldset><legend>Time of birth</legend><div class="time-fields"><label>Hour<select name="hour">${Array.from({length:12},(_,i)=>`<option>${i+1}</option>`).join('')}</select></label><label>Min<input name="minute" type="number" min="0" max="59" required></label><label>Sec<input name="second" type="number" min="0" max="59" required></label><label>AM/PM<select name="ampm"><option>AM</option><option>PM</option></select></label></div></fieldset>
+<div class="place-wrap"><label>Place of birth<input id="place" name="place" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="places" aria-expanded="false" placeholder="Search city or town" required></label><div id="places" role="listbox" hidden></div><p class="hint" id="place-status" aria-live="polite">Sample location · Mumbai city centre</p></div>
+<div class="coords"><label>Latitude<input name="lat" type="number" min="-90" max="90" step="any" required></label><label>Longitude<input name="lon" type="number" min="-180" max="180" step="any" required></label></div>
+<label>Timezone<input name="zone" required list="zones" autocomplete="off" placeholder="Asia/Kolkata"></label><datalist id="zones">${['Asia/Kolkata','Europe/London','America/New_York','America/Los_Angeles','Australia/Sydney','Asia/Dubai','UTC'].map(x=>`<option value="${x}">`).join('')}</datalist>
+<p class="hint">Historical clock changes apply automatically. Coordinates and timezone can be corrected above.</p>
+<details><summary>Calculation settings</summary><div class="settings"><div class="fixed-setting">Zodiac <strong>Sidereal · precision ayanamsa</strong></div><div class="fixed-setting">Houses <strong>Placidus</strong></div><label>Lunar node<select name="node"><option value="mean">Mean node</option><option value="true">True node</option></select></label><label>Dasha year<select name="yearDays"><option value="365.25">365.25 days · Julian year</option><option value="365.25636">365.25636 days · Sidereal year</option><option value="360">360 days · Savana year</option></select></label><label>DST handling for a repeated time<select name="fold"><option value="reject">Ask me to choose</option><option value="earlier">First occurrence (earlier UTC)</option><option value="later">Second occurrence (later UTC)</option></select></label></div></details>
+<button class="primary" id="calculate" type="submit" disabled>Loading Swiss Ephemeris…</button><label class="profile-name">Profile name<input id="profile-name" name="profileName" maxlength="80" value="My birth chart" placeholder="For example, Manish"></label><button class="secondary save-profile" id="save-profile" type="button">Save to my profile</button><button class="text-button" id="sample" type="button">Load sample · 19 Oct 1975, Mumbai</button><p id="profile-status" class="hint" aria-live="polite"></p><p id="error" class="error" role="alert" hidden></p><p id="dirty" class="hint" hidden>Details changed. Calculate to update the results.</p></form>
+<div class="privacy"><span>◈</span><p>Birth details are saved only when you choose Save to my profile.<br>Place names go to the search provider.</p></div></aside>
+<section class="workspace" aria-label="Chart results"><div id="results"><div class="loading-card"><span class="eyebrow">ASTRALOOM</span><h2>Ready to calculate</h2><p>Enter your birth details, then calculate your chart.</p></div></div></section></main>
+<footer><span>AstraLoom · Precision astrology</span><span>Places: <a href="https://open-meteo.com/en/docs/geocoding-api" target="_blank" rel="noreferrer">Open-Meteo</a> / <a href="https://www.geonames.org/" target="_blank" rel="noreferrer">GeoNames</a> · <a href="/studio/VERIFICATION.md">Verification</a></span></footer>`;
+const form=$('#birth-form');
+const blank={date:'',hour:'12',minute:'0',second:'0',ampm:'PM',zone:'',lat:'',lon:'',place:'',fold:'reject',node:'mean',yearDays:'365.25'};
+function fill(data){Object.entries(data).forEach(([k,v])=>{if(form.elements[k])form.elements[k].value=v;});}
+fill(sample);
+function fail(e){$('#error').textContent=e.message||String(e);$('#error').hidden=false;}
+function showReady(){ $('#results').innerHTML='<div class="loading-card"><span class="eyebrow">ASTRALOOM</span><h2>Ready to calculate</h2><p>Enter your birth details, then calculate your chart.</p></div>'; }
+function run(){
+  if(!swe)return;
+  $('#error').hidden=true;
+  try {const next=calculate(swe,Object.fromEntries(new FormData(form)));chart=next;transit=undefined;transitQuarterCache.clear();const cur=chainAt(chart.seed,Date.now());cycle=cur.cycle;path=cur.chain;$('#dirty').hidden=true;render();return chart;}
+  catch(e){fail(e);return null;}
+}
+form.addEventListener('submit',e=>{e.preventDefault();calculateNow();});
+form.addEventListener('input',()=>{$('#dirty').hidden=!chart;});
+$('#sample').onclick=()=>{clearTimeout(searchTimer);searchAbort?.abort();searchGeneration++;fill(sample);$('#place-status').textContent='Sample location · Mumbai city centre';closePlaces();calculateNow();};
+$('#new-chart').onclick=()=>{clearTimeout(searchTimer);searchAbort?.abort();searchGeneration++;chart=undefined;transit=undefined;tab='birth';chartStyle='north';cycle=0;path=[];fill(blank);$('#profile-name').value='My birth chart';$('#place-status').textContent='Search for a city, or enter coordinates and timezone.';$('#profile-status').textContent='';$('#error').hidden=true;$('#dirty').hidden=true;history.replaceState(null,'','/studio/');closePlaces();showReady();$('#place').focus();};
+$('#save-profile').onclick=async()=>{const label=$('#profile-name').value.trim(),status=$('#profile-status'),button=$('#save-profile');if(!label){status.textContent='Enter a profile name first.';$('#profile-name').focus();return;}const data=Object.fromEntries(new FormData(form));delete data.profileName;status.textContent='Calculating and saving profile…';button.disabled=true;try{const calculated=await calculateNow();if(!calculated)throw new Error('Correct the birth details, then save the calculated chart.');data._chart=calculated;const response=await fetch('/api/profiles',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({label,data})});const result=await response.json();if(!response.ok)throw new Error(result.error||'Could not save this profile.');status.textContent=`Saved “${result.profile.label}” with its chart. Opening My profile…`;window.setTimeout(()=>location.assign('/profile'),450);}catch(error){status.textContent=error.message||'Could not save this profile.';}finally{button.disabled=false;}};
+async function loadRequestedProfile(){const id=new URLSearchParams(location.search).get('profile');if(!id)return;const status=$('#profile-status');status.textContent='Loading saved profile…';try{const response=await fetch(`/api/profiles/${encodeURIComponent(id)}`),result=await response.json();if(!response.ok)throw new Error(result.error||'Could not load this profile.');const {_chart:snapshot,...birthData}=result.profile.birthData;fill(birthData);$('#profile-name').value=result.profile.label;$('#place-status').textContent=`Saved profile · ${result.profile.label}`;if(snapshot?.planets&&snapshot?.cusps&&snapshot?.seed){chart=snapshot;({cycle,chain:path}=chainAt(chart.seed,Date.now()));$('#dirty').hidden=true;render();status.textContent=`Loaded “${result.profile.label}” and its saved chart.`;}else{status.textContent=`Restoring “${result.profile.label}”…`;await calculateNow();status.textContent=`Loaded “${result.profile.label}”. Save it again to keep a chart snapshot.`;}}catch(error){status.textContent=error.message||'Could not load this profile.';}}
+function closePlaces(){$('#places').hidden=true;$('#place').setAttribute('aria-expanded','false');$('#place').removeAttribute('aria-activedescendant');}
+let placeResults=[],activeOption=-1;
+function selectPlace(i){const p=placeResults[i];if(!p)return;clearTimeout(searchTimer);searchAbort?.abort();searchGeneration++;fill({place:[p.name,p.admin1,p.country].filter(Boolean).join(', '),lat:p.latitude,lon:p.longitude,zone:p.timezone||''});$('#place-status').textContent=p.timezone?'Location and timezone selected.':'Timezone missing. Enter the correct IANA timezone.';closePlaces();$('#dirty').hidden=!chart;}
+$('#place').addEventListener('input',()=>{
+  clearTimeout(searchTimer);searchAbort?.abort();const generation=++searchGeneration,q=$('#place').value.trim();closePlaces();
+  // Never silently reuse coordinates for a newly typed city.
+  fill({lat:'',lon:'',zone:''});$('#place-status').textContent='Select a result, or enter coordinates and timezone manually.';
+  if(q.length<2)return;
+  searchTimer=setTimeout(async()=>{
+    searchAbort=new AbortController();const controller=searchAbort;$('#place-status').textContent='Searching places…';
+    const timeout=setTimeout(()=>controller.abort(),10000);
+    try{const response=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=8&language=en&format=json`,{signal:controller.signal});if(!response.ok)throw new Error('Place search is unavailable. Enter coordinates and timezone manually.');const data=await response.json();if(generation!==searchGeneration)return;placeResults=data.results||[];activeOption=-1;$('#places').innerHTML=placeResults.map((p,i)=>`<button type="button" role="option" id="place-${i}" aria-selected="false" data-place="${i}"><strong>${esc(p.name)}</strong><span>${esc([p.admin1,p.country].filter(Boolean).join(', '))}</span><small>${esc(p.timezone||'Timezone unavailable')}</small></button>`).join('');$('#places').hidden=!placeResults.length;$('#place').setAttribute('aria-expanded',String(!!placeResults.length));$('#place-status').textContent=placeResults.length?'Choose the matching place.':'No matches. Try another spelling or enter coordinates manually.';}catch(e){if(generation===searchGeneration)$('#place-status').textContent='Place search is unavailable. Enter coordinates and timezone manually.';}finally{clearTimeout(timeout);}
+  },350);
+});
+$('#places').onclick=e=>{const b=e.target.closest('[data-place]');if(b)selectPlace(+b.dataset.place);};
+$('#place').onkeydown=e=>{if(e.key==='Escape'){closePlaces();return;}if($('#places').hidden)return;if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();activeOption=(activeOption+(e.key==='ArrowDown'?1:-1)+placeResults.length)%placeResults.length;document.querySelectorAll('[data-place]').forEach((b,i)=>b.setAttribute('aria-selected',String(i===activeOption)));$('#place').setAttribute('aria-activedescendant',`place-${activeOption}`);$(`#place-${activeOption}`).scrollIntoView({block:'nearest'});}if(e.key==='Enter'&&activeOption>=0){e.preventDefault();selectPlace(activeOption);}};
+document.addEventListener('click',e=>{if(!e.target.closest('.place-wrap'))closePlaces();});
+const houses=x=>x.length?x.join(', '):'—';
+function zone(){return displayZone==='UTC'?'UTC':chart.time.zone;}
+function stamp(ms){return esc(formatTime(ms,zone()));}
+function lordCells(p){return `<td>${esc(p.star)}</td><td class="sub-lord">${esc(p.sub)}</td><td>${esc(p.subsub)}</td>`;}
+function table(headers,rows){return `<div class="table-wrap" tabindex="0"><table><thead><tr>${headers.map(h=>`<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>`;}
+function birthView(){
+  const order=[11,0,1,2,10,3,9,4,8,7,6,5],positions=[[1,1],[1,2],[1,3],[1,4],[2,1],[2,4],[3,1],[3,4],[4,1],[4,2],[4,3],[4,4]];
+  return `<div class="birth-layout"><div><div class="section-title"><h3>Birth chart</h3><div class="chart-switch" aria-label="Chart style"><button data-chart-style="north" class="${chartStyle==='north'?'selected':''}" aria-pressed="${chartStyle==='north'}">North Indian</button><button data-chart-style="south" class="${chartStyle==='south'?'selected':''}" aria-pressed="${chartStyle==='south'}">South Indian</button><button data-chart-style="chalit" class="${chartStyle==='chalit'?'selected':''}" aria-pressed="${chartStyle==='chalit'}">Bhava Chalit</button></div></div>${chartStyle==='north'?northChart(chart):chartStyle==='chalit'?northChalitChart(chart):''}<div class="rasi" ${chartStyle!=='south'?'hidden':''} role="img" aria-label="Sidereal birth chart, fixed signs. Full positions are in the table below.">${order.map((s,i)=>`<div class="sign-cell" style="grid-row:${positions[i][0]};grid-column:${positions[i][1]}"><span class="sign-name">${SIGNS[s]}</span>${chart.cusps[0].signIndex===s?'<b class="asc-label">Asc</b>':''}${chart.planets.filter(p=>p.signIndex===s).map(p=>`<span class="chart-planet">${p.name.slice(0,2)}${p.retrograde?'<sup>R</sup>':''} <small>${(p.longitude%30).toFixed(2)}°</small></span>`).join('')}</div>`).join('')}<div class="chart-center"><span class="chart-sigil">✧</span><h3>${esc(chart.cusps[0].sign)}</h3><span>ASCENDANT</span><p>${esc(chart.input.place.split(',')[0])}<br>${DateTime.fromMillis(chart.time.ms,{zone:chart.time.zone}).toFormat('dd LLL yyyy')}</p></div></div></div><div class="chart-notes"><span class="eyebrow">CHART ANCHORS</span><h3>${chart.planets.find(p=>p.name==='Moon').nakshatra}</h3><p>Moon’s nakshatra</p><div class="anchor"><span>Ascendant</span><strong>${dms(chart.cusps[0].longitude)}</strong><small>${chart.cusps[0].star} star · ${chart.cusps[0].sub} sub</small></div><div class="anchor"><span>10th cusp · MC</span><strong>${dms(chart.cusps[9].longitude)}</strong><small>${chart.cusps[9].star} star · ${chart.cusps[9].sub} sub</small></div><div class="anchor"><span>Ayanamsa (true, with nutation)</span><strong>${chart.ayanamsa.toFixed(8)}°</strong></div><p class="hint">R marks retrograde motion. House occupation uses the span from each cusp to the next, in zodiac order.</p></div></div><div class="section-title"><h3>Planetary positions</h3><span>Star → sub → sub-sub</span></div>${table(['Planet','Sidereal position','Placidus house','Signified houses','Sign lord','Nakshatra','Star lord','Sub-lord','Sub-sub'],chart.planets.map(p=>`<tr><th scope="row">${p.name} ${p.retrograde?'<small class="retro">R</small>':''}</th><td class="numeric" title="${p.longitude.toFixed(10)}°">${dms(p.longitude)}</td><td>${p.house}</td><td class="house-numbers">${houseNumbers(chart.significations.find(s=>s.name===p.name)).join(', ')}</td><td>${p.signLord}</td><td>${p.nakshatra}</td>${lordCells(p)}</tr>`).join(''))}`;
+}
+function cuspView(){return `<div class="section-title"><h3>House cusps</h3><span>Placidus · sidereal</span></div><p class="view-note">All 12 cusp sub-lords, with their full stellar chain. Decimal longitudes retain calculation precision; degrees, minutes and seconds are rounded for display.</p>${table(['Cusp','Sidereal position','Longitude','Sign lord','Nakshatra','Star lord','Sub-lord','Sub-sub'],chart.cusps.map(p=>`<tr class="${p.house===10?'highlight':''}"><th scope="row">${String(p.house).padStart(2,'0')}${p.house===1?' · Asc':p.house===10?' · MC':''}</th><td class="numeric">${dms(p.longitude)}</td><td class="numeric">${p.longitude.toFixed(8)}°</td><td>${p.signLord}</td><td>${p.nakshatra}</td>${lordCells(p)}</tr>`).join(''))}<div class="notice">A cusp’s sub-lord can change with a small change in birth time or coordinates. The 10th cusp above is calculated from the entered location; it is not a preset.</div>`;}
+const ordinal=n=>`${n}${n===1?'st':n===2?'nd':n===3?'rd':'th'}`;
+function agencyRows(agency){return `<dt>Star lord · ${agency.starLord.lord}</dt><dd>${houses(agency.starLord.houses)}</dd><dt>Sign lord · ${agency.signLord.lord}</dt><dd>${houses(agency.signLord.houses)}</dd>${agency.aspects.map(a=>`<dt>Aspect · ${a.planet} (${a.aspects.map(ordinal).join(', ')})</dt><dd>${houses(a.houses)}</dd>`).join('')}${agency.axisConjunctions.map(a=>`<dt>${a.node} same sign · ${a.planet}</dt><dd>${houses(a.houses)}</dd>`).join('')}`;}
+function sigView(){return `<div class="section-title"><h3>Planet significations</h3><span>Four-fold stellar</span></div><p class="view-note">For ordinary planets, Signified houses are the unique house numbers from A–D. A: star lord’s occupied house · B: planet’s occupied house · C: houses owned by the star lord · D: houses owned by the planet. If a planet’s star or sub lord is Rahu/Ketu, the node’s complete applicable agency is added to its total.</p>${table(['Planet','Signified houses','A · Star occupation','B · Occupation','C · Star ownership','D · Ownership'],chart.significations.map(p=>`<tr><th scope="row">${p.name}</th><td class="house-numbers">${houseNumbers(p).join(', ')}</td><td>${houses(p.A)}</td><td>${houses(p.B)}</td><td>${houses(p.C)}</td><td>${houses(p.D)}</td></tr>`).join(''))}<h3 class="spaced">Planet → star → sub relationships</h3><p class="view-note">Each column below shows occupation + ownership for that lord. For nodes, the expanded agency below shows exactly what is added. A node carrier set includes its placement, sign lord, received traditional Vedic aspects and same-sign conjunctions across the Rahu–Ketu axis. Aspect labels use the customary 7th aspect for all planets, plus Mars 4th/8th, Jupiter 5th/9th and Saturn 3rd/10th.</p><div class="sig-grid">${chart.significations.map(p=>`<article class="sig-card"><h4>${p.name}</h4><div class="number-chips" aria-label="Signified houses">${houseNumbers(p).map(n=>`<span>${n}</span>`).join('')}</div><dl><dt>Planet</dt><dd>${houses(p.planet)}</dd><dt>Star · ${p.star}</dt><dd>${houses(p.starHouses)}</dd><dt>Sub · ${p.sub}</dt><dd>${houses(p.subHouses)}</dd>${p.nodeAgency?agencyRows(p.nodeAgency):''}</dl></article>`).join('')}</div><div class="notice">Rahu and Ketu own no signs. Their expanded totals include their placement, sign-lord agency, received aspects and node-axis same-sign conjunctions. For this sample, Rahu shares Libra with Sun, so Sun’s houses appear for both Rahu and Ketu. Any planet in a node’s star or sub receives that complete node carrier set.</div>`;}
+const planetGlyph={Sun:'☉',Moon:'☽',Mars:'♂',Mercury:'☿',Jupiter:'♃',Venus:'♀',Saturn:'♄',Rahu:'☊',Ketu:'☋'};
+function planetToken(lord){return `<span class="planet-token planet-${lord.toLowerCase()}"><i aria-hidden="true">${planetGlyph[lord]||'✦'}</i>${lord}</span>`;}
+function dashaView(){
+  let lists=[mahadashas(chart.seed,cycle)];for(let i=0;i<4;i++)lists.push(children(path[i]));
+  return `<div class="section-title"><h3>Dasha navigator</h3><label class="inline-label">Display dates in <select id="date-zone"><option value="birth" ${displayZone==='birth'?'selected':''}>${esc(chart.time.zone)}</option><option ${displayZone==='UTC'?'selected':''}>UTC</option></select></label></div><div class="dasha-toolbar"><div><button id="prev-cycle" class="secondary" aria-label="Previous 120-year cycle">← 120 years</button><button id="next-cycle" class="secondary" aria-label="Next 120-year cycle">120 years →</button></div><form id="jump-form"><label>Go to date (${esc(zone())})<input id="jump-date" type="date" required value="${DateTime.now().setZone(zone()).toISODate()}"></label><button class="secondary">Go</button><button id="now" class="secondary" type="button">Now</button></form></div><p class="hint">Select a period to open its subdivisions. Dates below include UTC offsets and seconds. Start is inclusive; end is exclusive. Go selects midnight in the displayed timezone.</p><div class="dasha-grid">${lists.map((list,level)=>`<section class="dasha-column"><div class="column-heading"><b>${['MD','AD','PD','Sookshma','Pran'][level]}</b><span>${['Mahadasha','Antardasha','Pratyantardasha','Sookshma dasha','Pran dasha'][level]}</span></div>${list.map((p,i)=>`<button class="period ${path[level]?.start===p.start?'selected':''}" data-level="${level}" data-index="${i}" aria-pressed="${path[level]?.start===p.start}"><span class="period-name">${planetToken(p.lord)} ${contains(p,Date.now())?'<small>Current</small>':''}</span><span><small>From</small> ${stamp(p.start)}</span><span><small>Until</small> ${stamp(p.end)}</span></button>`).join('')}</section>`).join('')}</div><div class="notice">Year convention: ${chart.input.yearDays} days. The birth balance comes from the Moon’s unrounded position within its nakshatra. Period timestamps are mathematical boundaries under this convention, not claims of predictive precision.</div>`;
+}
+const PRED_COLORS={education:'#587fb8',career:'#6c6bdd',relationships:'#ae5b72',wealth:'#af7a2d',health:'#397f72',litigation:'#9366aa'};
+function predRangeBounds(){
+  const now=Date.now(),Y=365.25*86400000;
+  if(predRange==='1')return[now-1*Y,now+1*Y];
+  if(predRange==='10')return[now-5*Y,now+10*Y];
+  if(predRange==='dasha'){const {chain}=chainAt(chart.seed,now);return[chain[0].start,chain[0].end];}
+  return[now-5*Y,now+5*Y];
+}
+function predictionsView(){
+  const [s,e]=predRangeBounds();
+  const keys=DOMAIN_KEYS.filter(k=>predSelected[k]);
+  transitUnavailable=false;
+  let provider=null;
+  if(predTransitGate&&swe){
+    provider=(q,k)=>{
+      const cacheKey=`${chart.seed.start}-${q.year}-Q${q.q}`;
+      let entry=transitQuarterCache.get(cacheKey);
+      if(!entry){
+        try {
+          const t=transitsAt(swe,chart,q.mid);
+          const {chain}=chainAt(chart.seed,q.mid);
+          entry={planets:t.planets,lords:chain.slice(0,4).map(p=>p.lord)};
+          if(transitQuarterCache.size>400) transitQuarterCache.clear();
+          transitQuarterCache.set(cacheKey,entry);
+        } catch { transitUnavailable=true; return null; }
+      }
+      try {
+        return scoreQuarterTransit(entry.planets,chart.significations,entry.lords,k).T;
+      } catch { transitUnavailable=true; return null; }
+    };
+  } else if(predTransitGate&&!swe){ transitUnavailable=true; }
+  const rows=predictRange(chart,s,e,keys.length?keys:['career'],provider);
+  const k0=(keys.length?keys:['career'])[0];
+  const sel=rows.find(r=>r.label===predQuarterLabel)||rows.find(r=>s<=Date.now()&&Date.now()<r.end)||rows[0];
+  const selIdx=rows.indexOf(sel);
+  const peaks=findPeaks(rows,k0);
+  const delta=quarterDelta(rows,selIdx,k0);
+  const conc=sel?concordance(sel.scores[k0]):{stars:0,label:'☆☆☆'};
+  const head=sel?headlineFor(k0,sel.scores[k0]):null;
+  const shifts=dashaShiftLabels(chart.seed,rows,chainAt);
+  const moonSign=chart.planets.find(p=>p.name==='Moon')?.signIndex;
+  const selCache=sel?transitQuarterCache.get(`${chart.seed.start}-${sel.year}-Q${sel.q}`):null;
+  const skyBadges=(selCache&&Number.isInteger(moonSign))?gocharaBadges(moonSign,selCache.planets):[];
+  const deltaTxt=delta>0?`rising +${delta} from last quarter`:delta<0?`falling ${delta} from last quarter`:'first quarter in range';
+  const hero=(sel&&peaks.best)?`<div class="pred-hero">`
+    + `<div class="pred-hero-card"><span class="eyebrow">PEAK WINDOW</span><b>${esc(peaks.best.label)} · ${peaks.best.direction>0?'+':''}${peaks.best.direction}</b><span>${esc(DOMAINS[k0].label)} best in range</span></div>`
+    + `<div class="pred-hero-card now"><span class="eyebrow">SELECTED</span><b>${esc(sel.label)} · ${sel.scores[k0].direction>0?'+':''}${sel.scores[k0].direction}</b><span>${esc(deltaTxt)} · ${esc(conc.label)}</span></div>`
+    + (peaks.worst&&peaks.worst.label!==peaks.best.label?`<div class="pred-hero-card watch"><span class="eyebrow">CAUTION WINDOW</span><b>${esc(peaks.worst.label)} · ${peaks.worst.direction>0?'+':''}${peaks.worst.direction}</b><span>${esc(DOMAINS[k0].label)} weakest in range</span></div>`:'')
+    + `</div>`
+    + (skyBadges.length?`<p class="hint">Sky context this quarter: ${skyBadges.map(esc).join(' · ')} (classical Gochara context — scores unchanged).</p>`:''):'';
+  const W=760,H=280,padL=44,padB=28,plotW=W-padL-16,plotH=H-20-padB;
+  const X=i=>rows.length<=1?padL+plotW/2:padL+plotW*i/(rows.length-1);
+  const Y=v=>10+plotH/2-(v/100)*(plotH/2);
+  const lines=(keys.length?keys:['career']).map(k=>{
+    const pts=rows.map((r,i)=>`${X(i).toFixed(1)},${Y(r.scores[k].direction).toFixed(1)}`).join(' ');
+    return `<polyline points="${pts}" fill="none" stroke="${PRED_COLORS[k]}" stroke-width="2.5"/>`;
+  }).join('');
+  const dots=rows.map((r,i)=>{
+    const k=(keys.length?keys:['career'])[0];
+    return `<circle cx="${X(i)}" cy="${Y(r.scores[k].direction)}" r="4" fill="#fff" stroke="${PRED_COLORS[k]}" stroke-width="2" data-quarter="${r.label}"><title>${r.label}: ${r.scores[k].direction}</title></circle>`;
+  }).join('');
+  const why=Object.entries(sel.scores).map(([k,v])=>{const h=headlineFor(k,v);const c=concordance(v);return `<article class="pred-why-card"><h4>${esc(h.title)}</h4><p>${esc(h.verdict)} · ${esc(describeIntensity(v.intensity))} · intensity ${v.intensity} · confidence ${v.confidence} · concordance ${esc(c.label)} · natal ${v.detail.P} / dasha ${v.detail.D} / combo ${v.detail.C} / repetition ${v.detail.R}${predTransitGate?` / transit ${v.detail.T}`:''}</p><ul>${v.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul></article>`;}).join('');
+  return `<div class="predictions"><div class="section-title"><h3>Predictions</h3><span>${predTransitGate?'deterministic V1.1 · transit-gated + highlights':'deterministic V1 · quarterly'}</span></div>`
+  + `<p class="view-note pred-note">Mathematical indicators from natal promise × dasha activation${predTransitGate?' × transit trigger (KP gate ±15%, never reverses)':''} — not advice. Health &amp; litigation are astrological indicators only, not medical or legal forecasts. Weights: MD 35 · AD 30 · PD 22 · Sookshma 13; Planet 20 · Nak 40 · Sub 40.</p>`
+  + (transitUnavailable?`<div class="notice">Transit ephemeris unavailable for part of this range — those quarters show natal+dasha only (V1).</div>`:'')
+  + `<div class="pred-controls"><div class="pred-toggles">${DOMAIN_KEYS.map(k=>`<label><input type="checkbox" data-pred-domain="${k}" ${predSelected[k]?'checked':''}> ${esc(DOMAINS[k].label)}</label>`).join('')}</div>`
+  + `<label class="inline-label"><input type="checkbox" id="pred-transit-gate" ${predTransitGate?'checked':''}> Transit gate</label>`
+  + `<label class="inline-label">Range <select id="pred-range"><option value="1" ${predRange==='1'?'selected':''}>1 year</option><option value="5" ${predRange==='5'?'selected':''}>5 years</option><option value="10" ${predRange==='10'?'selected':''}>10 years</option><option value="dasha" ${predRange==='dasha'?'selected':''}>Full dasha</option></select></label></div>`
+  + `<svg class="pred-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Quarterly prediction chart, favourable up, challenging down">${[100,50,0,-50,-100].map(v=>`<line x1="${padL}" x2="${W-16}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v===0?'#142a40':'#dfe5ec'}"/><text x="6" y="${Y(v)+4}" font-size="10" fill="#67758a">${v>0?'+':''}${v}</text>`).join('')}${lines}${dots}<text x="${padL}" y="${H-6}" font-size="10" fill="#67758a">${rows[0]?.label||''}</text><text x="${W-90}" y="${H-6}" font-size="10" fill="#67758a">${rows[rows.length-1]?.label||''}</text></svg>`
+  + `<p class="hint">Favourable ← 0 → Challenging · dot size is uniform; intensity is shown per quarter below. Click a dot to inspect its WHY trace. ◈ marks a dasha-shift quarter.</p>`
+  + hero
+  + `<div class="pred-quarters">${rows.map(r=>{const k=(keys.length?keys:['career'])[0];const sh=shifts.get(r.label);return `<button class="pred-q ${r.label===sel.label?'selected':''}" data-quarter="${r.label}"${sh?` title="${esc(sh)}"`:''}>${r.label}${sh?' ◈':''}<b>${r.scores[k].direction>0?'+':''}${r.scores[k].direction}</b></button>`;}).join('')}</div>`
+  + `<h3 class="spaced pred-why-title">${esc(sel.label)} — why this score</h3>${why}</div>`;
+}
+function transitView(){
+  const t=transit??currentTransits(swe,chart),when=DateTime.fromMillis(t.ms,{zone:chart.time.zone});
+  return `<div class="transit-hero"><div><span class="eyebrow">LIVE SKY</span><h3>Current transits</h3><p>Calculated for ${when.toFormat('dd LLL yyyy · HH:mm:ss')} (${esc(chart.time.zone)}).</p></div><button id="refresh-transits" class="secondary">Refresh now</button></div><div class="transit-chart-heading"><div><span class="eyebrow">TRANSIT RASI</span><h3>North Indian transit chart</h3><p>Current planets against your natal ascendant.</p></div><span>Natal Asc · ${esc(chart.cusps[0].sign)}</span></div>${northTransitChart(chart,t)}<p class="view-note">Sidereal positions use AstraLoom’s precision sidereal ayanamsa. Natal house shows where each current transit falls in this chart’s Placidus houses. R marks retrograde motion.</p>${table(['Planet','Sidereal position','Transit sign','Nakshatra','Star lord','Sub-lord','Natal house'],t.planets.map(p=>`<tr><th scope="row">${p.name} ${p.retrograde?'<small class="retro">R</small>':''}</th><td class="numeric" title="${p.longitude.toFixed(10)}°">${dms(p.longitude)}</td><td>${p.sign}</td><td>${p.nakshatra}</td><td>${p.star}</td><td class="sub-lord">${p.sub}</td><td class="transit-house">${p.natalHouse}</td></tr>`).join(''))}<div class="notice">Transit timestamp: ${esc(t.utc)} · Ayanamsa: ${t.ayanamsa.toFixed(8)}°. Refresh recalculates every planet from Swiss Ephemeris.</div>`;
+}function render(){
+  const current=chainAt(chart.seed,Date.now()).chain;
+  if(tab==='transits'&&swe)transit=currentTransits(swe,chart);
+  $('#results').innerHTML=`<div class="result-heading"><div><span class="eyebrow">SIDEREAL CHART</span><h2>${esc(chart.input.place.split(',')[0])}<span class="heading-date">${DateTime.fromMillis(chart.time.ms,{zone:chart.time.zone}).toFormat('dd LLL yyyy · hh:mm a')}</span></h2><p>${esc(chart.time.zone)} · UTC${DateTime.fromMillis(chart.time.ms,{zone:chart.time.zone}).toFormat('ZZ')} · ${chart.time.dst?'DST in effect':'Standard time'}<br><span class="hint">${chart.input.lat.toFixed(5)}°, ${chart.input.lon.toFixed(5)}° · Birth UTC: ${esc(chart.time.utc)}</span></p></div><span class="pill">${chart.input.node==='mean'?'Mean':'True'} node</span></div><div class="current-strip"><div><span class="eyebrow">CURRENT VIMSHOTTARI</span><span class="hint">As of ${DateTime.now().setZone(chart.time.zone).toFormat('dd LLL yyyy, HH:mm')}</span></div>${current.map((p,i)=>`<div><span>${['MD','AD','PD','SOOKSHMA','PRAN'][i]}</span><strong><i class="current-planet-glyph" aria-hidden="true">${planetGlyph[p.lord]||'✦'}</i>${p.lord}</strong></div>`).join('')}</div><nav class="tabs" aria-label="Chart views">${[['birth','Birth chart'],['cusps','Cusps & sub-lords'],['dasha','Dasha periods'],['transits','Current transits'],['significations','Significations'],['predictions','Predictions']].map(([key,label])=>`<button data-tab="${key}" class="${tab===key?'active':''}" aria-current="${tab===key?'page':'false'}">${label}</button>`).join('')}</nav><div class="view" id="view">${tab==='birth'?birthView():tab==='cusps'?cuspView():tab==='dasha'?dashaView():tab==='transits'?transitView():tab==='predictions'?predictionsView():sigView()}</div><p class="calculation-foot">Swiss Ephemeris ${esc(chart.version)} · precision sidereal · Placidus · ${chart.input.yearDays}-day dasha year</p>`;
+  document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;if(tab==='transits'&&!swe){calculateNow();return;}render();});
+  if(tab==='transits')$('#refresh-transits').onclick=()=>{transit=currentTransits(swe,chart);render();};
+  if(tab==='predictions'){
+    $('#pred-range').onchange=e=>{predRange=e.target.value;predQuarterLabel=null;render();};
+    const gate=$('#pred-transit-gate');
+    if(gate) gate.onchange=e=>{predTransitGate=e.target.checked;try{localStorage.setItem('astraloom-transit-gate',predTransitGate?'on':'off');}catch{}render();};
+    document.querySelectorAll('[data-pred-domain]').forEach(c=>c.onchange=()=>{predSelected[c.dataset.predDomain]=c.checked;render();});
+    document.querySelectorAll('[data-quarter]').forEach(b=>b.addEventListener('click',()=>{predQuarterLabel=b.dataset.quarter;render();}));
+  }
+  document.querySelectorAll('[data-chart-style]').forEach(b=>b.onclick=()=>{chartStyle=b.dataset.chartStyle;render();});
+  if(tab==='dasha'){
+    $('#date-zone').onchange=e=>{displayZone=e.target.value;render();};
+    const selectCycle=delta=>{cycle+=delta;path=[mahadashas(chart.seed,cycle)[0]];for(let i=1;i<5;i++)path.push(children(path[i-1])[0]);render();};
+    $('#prev-cycle').onclick=()=>selectCycle(-1);$('#next-cycle').onclick=()=>selectCycle(1);
+    $('#now').onclick=()=>{({cycle,chain:path}=chainAt(chart.seed,Date.now()));render();};
+    $('#jump-form').onsubmit=e=>{e.preventDefault();const dt=DateTime.fromISO($('#jump-date').value,{zone:zone()});if(!dt.isValid){fail(new Error('Choose a valid navigation date.'));return;}({cycle,chain:path}=chainAt(chart.seed,dt.toMillis()));render();};
+    document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{const level=+b.dataset.level;path[level]=(level===0?mahadashas(chart.seed,cycle):children(path[level-1]))[+b.dataset.index];for(let i=level+1;i<5;i++)path[i]=children(path[i-1])[0];render();});
+  }
+}
+const themeKey='astraloom-theme';
+function syncThemeToggle(){const dark=document.documentElement.dataset.theme==='dark';const label=`Switch to ${dark?'light':'dark'} mode`;const toggle=$('#theme-toggle');toggle.setAttribute('aria-label',label);toggle.title=label;toggle.querySelector('span').textContent=dark?'☀':'☾';}
+function setTheme(theme){document.documentElement.dataset.theme=theme;try{localStorage.setItem(themeKey,theme)}catch{}syncThemeToggle();}
+$('#theme-toggle').addEventListener('click',()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'));syncThemeToggle();
+async function calculateNow(){if(swe)return run();const button=$('#calculate');button.disabled=true;button.textContent='Loading ephemeris…';$('#engine').textContent='Preparing Swiss Ephemeris…';try{const libraryURL=new URL('/vendor/swisseph/src/swisseph.js',location.origin).href;const {default:SwissEph}=await import(/* @vite-ignore */ libraryURL);swe=new SwissEph();await swe.initSwissEph();$('#engine').textContent='Swiss Ephemeris · ready';return run();}catch(e){$('#engine').textContent='Ephemeris unavailable';fail(e);return null;}finally{button.disabled=false;button.textContent='Calculate chart →';}}
+function init(){$('#engine').textContent='Swiss Ephemeris · loads when needed';$('#calculate').disabled=false;$('#calculate').textContent='Calculate chart →';}
+loadRequestedProfile().finally(init);

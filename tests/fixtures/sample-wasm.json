@@ -1,0 +1,941 @@
+{
+  "input": {
+    "date": "1975-10-19",
+    "hour": 5,
+    "minute": 55,
+    "second": 0,
+    "ampm": "AM",
+    "zone": "Asia/Kolkata",
+    "lat": 19.076,
+    "lon": 72.8777,
+    "place": "Mumbai, Maharashtra, India",
+    "node": "mean",
+    "yearDays": 365.25
+  },
+  "time": {
+    "ms": 182910300000,
+    "utc": "1975-10-19T00:25:00.000Z",
+    "local": "1975-10-19T05:55:00.000+05:30",
+    "offset": 330,
+    "dst": false,
+    "ambiguous": false,
+    "zone": "Asia/Kolkata"
+  },
+  "jd": 2442704.5173603175,
+  "jdTT": 2442704.5178956483,
+  "ayanamsa": 23.42568253237722,
+  "version": "2.10.03",
+  "cusps": [
+    {
+      "longitude": 171.69677393876214,
+      "sign": "Virgo",
+      "signIndex": 5,
+      "signLord": "Mercury",
+      "nakshatra": "Hasta",
+      "nakshatraIndex": 12,
+      "star": "Moon",
+      "sub": "Venus",
+      "subsub": "Jupiter",
+      "boundaryArcsec": 441.7195128770545,
+      "house": 1
+    },
+    {
+      "longitude": 201.1805987266539,
+      "sign": "Libra",
+      "signIndex": 6,
+      "signLord": "Venus",
+      "nakshatra": "Vishakha",
+      "nakshatraIndex": 15,
+      "star": "Jupiter",
+      "sub": "Jupiter",
+      "subsub": "Sun",
+      "boundaryArcsec": 36.82208262073497,
+      "house": 2
+    },
+    {
+      "longitude": 231.1300022050143,
+      "sign": "Scorpio",
+      "signIndex": 7,
+      "signLord": "Mars",
+      "nakshatra": "Jyeshtha",
+      "nakshatraIndex": 17,
+      "star": "Mercury",
+      "sub": "Venus",
+      "subsub": "Mercury",
+      "boundaryArcsec": 68.00793805144106,
+      "house": 3
+    },
+    {
+      "longitude": 261.30711202144596,
+      "sign": "Sagittarius",
+      "signIndex": 8,
+      "signLord": "Jupiter",
+      "nakshatra": "Purva Ashadha",
+      "nakshatraIndex": 19,
+      "star": "Venus",
+      "sub": "Jupiter",
+      "subsub": "Sun",
+      "boundaryArcsec": 92.26994387215625,
+      "house": 4
+    },
+    {
+      "longitude": 292.02716878703984,
+      "sign": "Capricorn",
+      "signIndex": 9,
+      "signLord": "Saturn",
+      "nakshatra": "Shravana",
+      "nakshatraIndex": 21,
+      "star": "Moon",
+      "sub": "Venus",
+      "subsub": "Saturn",
+      "boundaryArcsec": 564.4743000101298,
+      "house": 5
+    },
+    {
+      "longitude": 322.7268710710001,
+      "sign": "Aquarius",
+      "signIndex": 10,
+      "signLord": "Saturn",
+      "nakshatra": "Purva Bhadrapada",
+      "nakshatraIndex": 24,
+      "star": "Jupiter",
+      "sub": "Saturn",
+      "subsub": "Venus",
+      "boundaryArcsec": 573.2641443995138,
+      "house": 6
+    },
+    {
+      "longitude": 351.69677393876214,
+      "sign": "Pisces",
+      "signIndex": 11,
+      "signLord": "Jupiter",
+      "nakshatra": "Revati",
+      "nakshatraIndex": 26,
+      "star": "Mercury",
+      "sub": "Sun",
+      "subsub": "Rahu",
+      "boundaryArcsec": 48.38617954372118,
+      "house": 7
+    },
+    {
+      "longitude": 21.180598726653955,
+      "sign": "Aries",
+      "signIndex": 0,
+      "signLord": "Mars",
+      "nakshatra": "Bharani",
+      "nakshatraIndex": 1,
+      "star": "Venus",
+      "sub": "Jupiter",
+      "subsub": "Venus",
+      "boundaryArcsec": 363.1779173791001,
+      "house": 8
+    },
+    {
+      "longitude": 51.13000220501431,
+      "sign": "Taurus",
+      "signIndex": 1,
+      "signLord": "Venus",
+      "nakshatra": "Rohini",
+      "nakshatraIndex": 3,
+      "star": "Moon",
+      "sub": "Venus",
+      "subsub": "Mars",
+      "boundaryArcsec": 68.00793805151868,
+      "house": 9
+    },
+    {
+      "longitude": 81.30711202144596,
+      "sign": "Gemini",
+      "signIndex": 2,
+      "signLord": "Mercury",
+      "nakshatra": "Punarvasu",
+      "nakshatraIndex": 6,
+      "star": "Jupiter",
+      "sub": "Jupiter",
+      "subsub": "Moon",
+      "boundaryArcsec": 172.26994387211744,
+      "house": 10
+    },
+    {
+      "longitude": 112.02716878703984,
+      "sign": "Cancer",
+      "signIndex": 3,
+      "signLord": "Moon",
+      "nakshatra": "Ashlesha",
+      "nakshatraIndex": 8,
+      "star": "Mercury",
+      "sub": "Sun",
+      "subsub": "Mercury",
+      "boundaryArcsec": 162.19236665653685,
+      "house": 11
+    },
+    {
+      "longitude": 142.72687107100012,
+      "sign": "Leo",
+      "signIndex": 4,
+      "signLord": "Sun",
+      "nakshatra": "Purva Phalguni",
+      "nakshatraIndex": 10,
+      "star": "Venus",
+      "sub": "Saturn",
+      "subsub": "Venus",
+      "boundaryArcsec": 293.40252226707526,
+      "house": 12
+    }
+  ],
+  "planets": [
+    {
+      "name": "Sun",
+      "longitude": 181.57483879312042,
+      "sign": "Libra",
+      "signIndex": 6,
+      "signLord": "Venus",
+      "nakshatra": "Chitra",
+      "nakshatraIndex": 13,
+      "star": "Mars",
+      "sub": "Mercury",
+      "subsub": "Jupiter",
+      "boundaryArcsec": 53.913678099789344,
+      "latitude": 0.00025687394076750683,
+      "speed": 0.9927893311107349,
+      "retrograde": false,
+      "house": 1
+    },
+    {
+      "name": "Moon",
+      "longitude": 348.49143417110076,
+      "sign": "Pisces",
+      "signIndex": 11,
+      "signLord": "Jupiter",
+      "nakshatra": "Revati",
+      "nakshatraIndex": 26,
+      "star": "Mercury",
+      "sub": "Mercury",
+      "subsub": "Saturn",
+      "boundaryArcsec": 230.83698403726643,
+      "latitude": 3.3618540987485583,
+      "speed": 11.900066195733185,
+      "retrograde": false,
+      "house": 6
+    },
+    {
+      "name": "Mars",
+      "longitude": 66.97414260907749,
+      "sign": "Gemini",
+      "signIndex": 2,
+      "signLord": "Mercury",
+      "nakshatra": "Ardra",
+      "nakshatraIndex": 5,
+      "star": "Rahu",
+      "sub": "Rahu",
+      "subsub": "Jupiter",
+      "boundaryArcsec": 26.913392678950913,
+      "latitude": 0.20757675736610148,
+      "speed": 0.23310097450248782,
+      "retrograde": false,
+      "house": 9
+    },
+    {
+      "name": "Mercury",
+      "longitude": 165.6933849786957,
+      "sign": "Virgo",
+      "signIndex": 5,
+      "signLord": "Mercury",
+      "nakshatra": "Hasta",
+      "nakshatraIndex": 12,
+      "star": "Moon",
+      "sub": "Saturn",
+      "subsub": "Saturn",
+      "boundaryArcsec": 96.1859233044864,
+      "latitude": 1.059952030939538,
+      "speed": 0.10825479236472806,
+      "retrograde": false,
+      "house": 12
+    },
+    {
+      "name": "Jupiter",
+      "longitude": 355.5027464593676,
+      "sign": "Pisces",
+      "signIndex": 11,
+      "signLord": "Jupiter",
+      "nakshatra": "Revati",
+      "nakshatraIndex": 26,
+      "star": "Mercury",
+      "sub": "Rahu",
+      "subsub": "Venus",
+      "boundaryArcsec": 389.8872537232625,
+      "latitude": -1.607708748198507,
+      "speed": -0.1333644021293661,
+      "retrograde": true,
+      "house": 7
+    },
+    {
+      "name": "Venus",
+      "longitude": 136.59339370675315,
+      "sign": "Leo",
+      "signIndex": 4,
+      "signLord": "Sun",
+      "nakshatra": "Purva Phalguni",
+      "nakshatraIndex": 10,
+      "star": "Venus",
+      "sub": "Moon",
+      "subsub": "Jupiter",
+      "boundaryArcsec": 169.55067764463215,
+      "latitude": -1.4730878600493953,
+      "speed": 0.8047247825360473,
+      "retrograde": false,
+      "house": 11
+    },
+    {
+      "name": "Saturn",
+      "longitude": 98.88605539906558,
+      "sign": "Cancer",
+      "signIndex": 3,
+      "signLord": "Moon",
+      "nakshatra": "Pushya",
+      "nakshatraIndex": 7,
+      "star": "Saturn",
+      "sub": "Venus",
+      "subsub": "Mars",
+      "boundaryArcsec": 76.86723003055279,
+      "latitude": 0.11088138703186913,
+      "speed": 0.04855711222422004,
+      "retrograde": false,
+      "house": 10
+    },
+    {
+      "name": "Rahu",
+      "longitude": 209.7593437474219,
+      "sign": "Libra",
+      "signIndex": 6,
+      "signLord": "Venus",
+      "nakshatra": "Vishakha",
+      "nakshatraIndex": 15,
+      "star": "Jupiter",
+      "sub": "Moon",
+      "subsub": "Rahu",
+      "boundaryArcsec": 33.02917594788596,
+      "latitude": 0,
+      "speed": -0.05299206102726201,
+      "retrograde": true,
+      "house": 2
+    },
+    {
+      "name": "Ketu",
+      "longitude": 29.759343747421894,
+      "sign": "Aries",
+      "signIndex": 0,
+      "signLord": "Mars",
+      "nakshatra": "Krittika",
+      "nakshatraIndex": 2,
+      "star": "Sun",
+      "sub": "Rahu",
+      "subsub": "Jupiter",
+      "boundaryArcsec": 106.3625092811805,
+      "latitude": 0,
+      "speed": -0.05299206102726201,
+      "retrograde": true,
+      "house": 8
+    }
+  ],
+  "significations": [
+    {
+      "name": "Sun",
+      "star": "Mars",
+      "sub": "Mercury",
+      "A": [
+        9
+      ],
+      "B": [
+        1
+      ],
+      "C": [
+        3,
+        8
+      ],
+      "D": [
+        12
+      ],
+      "allHouses": [
+        1,
+        3,
+        8,
+        9,
+        12
+      ],
+      "planet": [
+        1,
+        12
+      ],
+      "starHouses": [
+        3,
+        8,
+        9
+      ],
+      "subHouses": [
+        1,
+        10,
+        12
+      ],
+      "nodeAgency": null
+    },
+    {
+      "name": "Moon",
+      "star": "Mercury",
+      "sub": "Mercury",
+      "A": [
+        12
+      ],
+      "B": [
+        6
+      ],
+      "C": [
+        1,
+        10
+      ],
+      "D": [
+        11
+      ],
+      "allHouses": [
+        1,
+        6,
+        10,
+        11,
+        12
+      ],
+      "planet": [
+        6,
+        11
+      ],
+      "starHouses": [
+        1,
+        10,
+        12
+      ],
+      "subHouses": [
+        1,
+        10,
+        12
+      ],
+      "nodeAgency": null
+    },
+    {
+      "name": "Mars",
+      "star": "Rahu",
+      "sub": "Rahu",
+      "A": [
+        2
+      ],
+      "B": [
+        9
+      ],
+      "C": [],
+      "D": [
+        3,
+        8
+      ],
+      "allHouses": [
+        1,
+        2,
+        3,
+        8,
+        9,
+        11,
+        12
+      ],
+      "planet": [
+        3,
+        8,
+        9
+      ],
+      "starHouses": [
+        1,
+        2,
+        9,
+        11,
+        12
+      ],
+      "subHouses": [
+        1,
+        2,
+        9,
+        11,
+        12
+      ],
+      "nodeAgency": null
+    },
+    {
+      "name": "Mercury",
+      "star": "Moon",
+      "sub": "Saturn",
+      "A": [
+        6
+      ],
+      "B": [
+        12
+      ],
+      "C": [
+        11
+      ],
+      "D": [
+        1,
+        10
+      ],
+      "allHouses": [
+        1,
+        6,
+        10,
+        11,
+        12
+      ],
+      "planet": [
+        1,
+        10,
+        12
+      ],
+      "starHouses": [
+        6,
+        11
+      ],
+      "subHouses": [
+        5,
+        6,
+        10
+      ],
+      "nodeAgency": null
+    },
+    {
+      "name": "Jupiter",
+      "star": "Mercury",
+      "sub": "Rahu",
+      "A": [
+        12
+      ],
+      "B": [
+        7
+      ],
+      "C": [
+        1,
+        10
+      ],
+      "D": [
+        4,
+        7
+      ],
+      "allHouses": [
+        1,
+        2,
+        4,
+        7,
+        9,
+        10,
+        11,
+        12
+      ],
+      "planet": [
+        4,
+        7
+      ],
+      "starHouses": [
+        1,
+        10,
+        12
+      ],
+      "subHouses": [
+        1,
+        2,
+        9,
+        11,
+        12
+      ],
+      "nodeAgency": null
+    },
+    {
+      "name": "Venus",
+      "star": "Venus",
+      "sub": "Moon",
+      "A": [
+        11
+      ],
+      "B": [
+        11
+      ],
+      "C": [
+        2,
+        9
+      ],
+      "D": [
+        2,
+        9
+      ],
+      "allHouses": [
+        2,
+        9,
+        11
+      ],
+      "planet": [
+        2,
+        9,
+        11
+      ],
+      "starHouses": [
+        2,
+        9,
+        11
+      ],
+      "subHouses": [
+        6,
+        11
+      ],
+      "nodeAgency": null
+    },
+    {
+      "name": "Saturn",
+      "star": "Saturn",
+      "sub": "Venus",
+      "A": [
+        10
+      ],
+      "B": [
+        10
+      ],
+      "C": [
+        5,
+        6
+      ],
+      "D": [
+        5,
+        6
+      ],
+      "allHouses": [
+        5,
+        6,
+        10
+      ],
+      "planet": [
+        5,
+        6,
+        10
+      ],
+      "starHouses": [
+        5,
+        6,
+        10
+      ],
+      "subHouses": [
+        2,
+        9,
+        11
+      ],
+      "nodeAgency": null
+    },
+    {
+      "name": "Rahu",
+      "star": "Jupiter",
+      "sub": "Moon",
+      "A": [
+        7
+      ],
+      "B": [
+        2
+      ],
+      "C": [
+        4,
+        7
+      ],
+      "D": [],
+      "allHouses": [
+        1,
+        2,
+        9,
+        11,
+        12
+      ],
+      "carrierHouses": [
+        1,
+        2,
+        9,
+        11,
+        12
+      ],
+      "planet": [
+        2
+      ],
+      "starHouses": [
+        4,
+        7
+      ],
+      "subHouses": [
+        6,
+        11
+      ],
+      "nodeAgency": {
+        "starLord": {
+          "lord": "Jupiter",
+          "houses": [
+            4,
+            7
+          ]
+        },
+        "signLord": {
+          "lord": "Venus",
+          "houses": [
+            2,
+            9,
+            11
+          ]
+        },
+        "aspects": [],
+        "axisConjunctions": [
+          {
+            "node": "Rahu",
+            "planet": "Sun",
+            "houses": [
+              1,
+              12
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "Ketu",
+      "star": "Sun",
+      "sub": "Rahu",
+      "A": [
+        1
+      ],
+      "B": [
+        8
+      ],
+      "C": [
+        12
+      ],
+      "D": [],
+      "allHouses": [
+        1,
+        3,
+        5,
+        6,
+        8,
+        9,
+        10,
+        12
+      ],
+      "carrierHouses": [
+        1,
+        3,
+        5,
+        6,
+        8,
+        9,
+        10,
+        12
+      ],
+      "planet": [
+        8
+      ],
+      "starHouses": [
+        1,
+        12
+      ],
+      "subHouses": [
+        2
+      ],
+      "nodeAgency": {
+        "starLord": {
+          "lord": "Sun",
+          "houses": [
+            1,
+            12
+          ]
+        },
+        "signLord": {
+          "lord": "Mars",
+          "houses": [
+            3,
+            8,
+            9
+          ]
+        },
+        "aspects": [
+          {
+            "planet": "Sun",
+            "aspects": [
+              7
+            ],
+            "houses": [
+              1,
+              12
+            ]
+          },
+          {
+            "planet": "Saturn",
+            "aspects": [
+              10
+            ],
+            "houses": [
+              5,
+              6,
+              10
+            ]
+          }
+        ],
+        "axisConjunctions": [
+          {
+            "node": "Rahu",
+            "planet": "Sun",
+            "houses": [
+              1,
+              12
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "seed": {
+    "start": 109489064177.6401,
+    "index": 8,
+    "yearDays": 365.25
+  },
+  "referenceInstant": "2026-09-13T12:00:00Z",
+  "referenceChain": [
+    {
+      "lord": "Moon",
+      "index": 3,
+      "start": 1687369064177.6401,
+      "end": 2002945064177.6401,
+      "level": 0
+    },
+    {
+      "lord": "Jupiter",
+      "index": 6,
+      "start": 1779412064177.6401,
+      "end": 1821488864177.6401,
+      "level": 1
+    },
+    {
+      "lord": "Saturn",
+      "index": 7,
+      "start": 1785022304177.6401,
+      "end": 1791684464177.6401,
+      "level": 2
+    },
+    {
+      "lord": "Moon",
+      "index": 3,
+      "start": 1788853046177.6401,
+      "end": 1789408226177.6401,
+      "level": 3
+    },
+    {
+      "lord": "Venus",
+      "index": 1,
+      "start": 1789287937177.6401,
+      "end": 1789380467177.6401,
+      "level": 4
+    }
+  ],
+  "mahadashas": [
+    {
+      "lord": "Mercury",
+      "index": 8,
+      "start": 109489064177.6401,
+      "end": 645968264177.6401,
+      "level": 0
+    },
+    {
+      "lord": "Ketu",
+      "index": 0,
+      "start": 645968264177.6401,
+      "end": 866871464177.6401,
+      "level": 0
+    },
+    {
+      "lord": "Venus",
+      "index": 1,
+      "start": 866871464177.6401,
+      "end": 1498023464177.6401,
+      "level": 0
+    },
+    {
+      "lord": "Sun",
+      "index": 2,
+      "start": 1498023464177.6401,
+      "end": 1687369064177.6401,
+      "level": 0
+    },
+    {
+      "lord": "Moon",
+      "index": 3,
+      "start": 1687369064177.6401,
+      "end": 2002945064177.6401,
+      "level": 0
+    },
+    {
+      "lord": "Mars",
+      "index": 4,
+      "start": 2002945064177.6401,
+      "end": 2223848264177.64,
+      "level": 0
+    },
+    {
+      "lord": "Rahu",
+      "index": 5,
+      "start": 2223848264177.64,
+      "end": 2791885064177.64,
+      "level": 0
+    },
+    {
+      "lord": "Jupiter",
+      "index": 6,
+      "start": 2791885064177.64,
+      "end": 3296806664177.64,
+      "level": 0
+    },
+    {
+      "lord": "Saturn",
+      "index": 7,
+      "start": 3296806664177.64,
+      "end": 3896401064177.64,
+      "level": 0
+    }
+  ],
+  "trueNodes": [
+    {
+      "name": "Rahu",
+      "longitude": 208.49406766663685,
+      "sign": "Libra",
+      "signIndex": 6,
+      "signLord": "Venus",
+      "nakshatra": "Vishakha",
+      "nakshatraIndex": 15,
+      "star": "Jupiter",
+      "sub": "Venus",
+      "subsub": "Mercury",
+      "boundaryArcsec": 554.6897334406773,
+      "latitude": 0,
+      "speed": -0.06987656420247648,
+      "retrograde": true,
+      "house": 2
+    },
+    {
+      "name": "Ketu",
+      "longitude": 28.49406766663685,
+      "sign": "Aries",
+      "signIndex": 0,
+      "signLord": "Mars",
+      "nakshatra": "Krittika",
+      "nakshatraIndex": 2,
+      "star": "Sun",
+      "sub": "Mars",
+      "subsub": "Rahu",
+      "boundaryArcsec": 15.310266559342077,
+      "latitude": 0,
+      "speed": -0.06987656420247648,
+      "retrograde": true,
+      "house": 8
+    }
+  ]
+}
