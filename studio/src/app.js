@@ -80,6 +80,7 @@ function dashaView(){
   return `<div class="section-title"><h3>Dasha navigator</h3><label class="inline-label">Display dates in <select id="date-zone"><option value="birth" ${displayZone==='birth'?'selected':''}>${esc(chart.time.zone)}</option><option ${displayZone==='UTC'?'selected':''}>UTC</option></select></label></div><div class="dasha-toolbar"><div><button id="prev-cycle" class="secondary" aria-label="Previous 120-year cycle">← 120 years</button><button id="next-cycle" class="secondary" aria-label="Next 120-year cycle">120 years →</button></div><form id="jump-form"><label>Go to date (${esc(zone())})<input id="jump-date" type="date" required value="${DateTime.now().setZone(zone()).toISODate()}"></label><button class="secondary">Go</button><button id="now" class="secondary" type="button">Now</button></form></div><p class="hint">Select a period to open its subdivisions. Dates below include UTC offsets and seconds. Start is inclusive; end is exclusive. Go selects midnight in the displayed timezone.</p><div class="dasha-grid">${lists.map((list,level)=>`<section class="dasha-column"><div class="column-heading"><b>${['MD','AD','PD','Sookshma','Pran'][level]}</b><span>${['Mahadasha','Antardasha','Pratyantardasha','Sookshma dasha','Pran dasha'][level]}</span></div>${list.map((p,i)=>`<button class="period ${path[level]?.start===p.start?'selected':''}" data-level="${level}" data-index="${i}" aria-pressed="${path[level]?.start===p.start}"><span class="period-name">${planetToken(p.lord)} ${contains(p,Date.now())?'<small>Current</small>':''}</span><span><small>From</small> ${stamp(p.start)}</span><span><small>Until</small> ${stamp(p.end)}</span></button>`).join('')}</section>`).join('')}</div><div class="notice">Year convention: ${chart.input.yearDays} days. The birth balance comes from the Moon’s unrounded position within its nakshatra. Period timestamps are mathematical boundaries under this convention, not claims of predictive precision.</div>`;
 }
 const PRED_COLORS={education:'#587fb8',career:'#6c6bdd',relationships:'#ae5b72',wealth:'#af7a2d',health:'#397f72',litigation:'#9366aa'};
+function directionBand(v){return v>=60?['strong-support','Strongly supportive']:v>=25?['support','Supportive']:v>-25?['neutral','Balanced']:v>-60?['challenge','Challenging']:['strong-challenge','Strongly challenging'];}
 function predictionMahadashas(){
   const current=chainAt(chart.seed,Date.now());
   const periods=[current.cycle-1,current.cycle,current.cycle+1].flatMap(c=>mahadashas(chart.seed,c));
@@ -90,12 +91,11 @@ function predictionsView(){
   const keys=DOMAIN_KEYS.filter(k=>predSelected[k]);
   const rows=predictRange(chart,s,e,keys.length?keys:['career']);
   const plottedKeys=keys.length?keys:['career'];
-  const observedMaximum=Math.max(0,...rows.flatMap(r=>plottedKeys.map(k=>Math.abs(r.scores[k].direction))));
-  const plotLimit=observedMaximum<=25?25:observedMaximum<=50?50:observedMaximum<=60?60:100;
-  const axisTicks=[plotLimit,plotLimit/2,0,-plotLimit/2,-plotLimit];
+  const axisTicks=[100,60,25,0,-25,-60,-100];
+  const chartBands=[[100,60,'support'],[60,25,'soft-support'],[25,-25,'balanced'],[-25,-60,'soft-challenge'],[-60,-100,'challenge']];
   const W=760,H=280,padL=44,padB=28,plotW=W-padL-16,plotH=H-20-padB;
   const X=i=>rows.length<=1?padL+plotW/2:padL+plotW*i/(rows.length-1);
-  const Y=v=>10+plotH/2-(v/plotLimit)*(plotH/2);
+  const Y=v=>10+plotH/2-(v/100)*(plotH/2);
   const lines=plottedKeys.map(k=>{
     const pts=rows.map((r,i)=>`${X(i).toFixed(1)},${Y(r.scores[k].direction).toFixed(1)}`).join(' ');
     return `<polyline points="${pts}" fill="none" stroke="${PRED_COLORS[k]}" stroke-width="2.5"/>`;
@@ -110,9 +110,10 @@ function predictionsView(){
   + `<p class="view-note pred-note">Mathematical indicators from natal promise × dasha activation — not advice. Health &amp; litigation are astrological indicators only, not medical or legal forecasts. Weights: MD 35 · AD 30 · PD 22 · Sookshma 13; Planet 20 · Nak 40 · Sub 40.</p>`
   + `<div class="pred-controls"><div class="pred-toggles">${DOMAIN_KEYS.map(k=>`<label><input type="checkbox" data-pred-domain="${k}" ${predSelected[k]?'checked':''}> ${esc(DOMAINS[k].label)}</label>`).join('')}</div>`
   + `<label class="inline-label">Mahadasha <select id="pred-md">${periods.map(p=>`<option value="${p.start}" ${p.start===active.start?'selected':''}>${p.lord} · ${DateTime.fromMillis(p.start,{zone:chart.time.zone}).toFormat('dd LLL yyyy')} — ${DateTime.fromMillis(p.end,{zone:chart.time.zone}).toFormat('dd LLL yyyy')}</option>`).join('')}</select></label></div>`
-  + `<svg class="pred-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Quarterly prediction chart, favourable up, challenging down, scaled to plus or minus ${plotLimit}">${axisTicks.map(v=>`<line x1="${padL}" x2="${W-16}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v===0?'#142a40':'#dfe5ec'}"/><text x="6" y="${Y(v)+4}" font-size="10" fill="#67758a">${v>0?'+':''}${v}</text>`).join('')}${lines}${dots}<text x="${padL}" y="${H-6}" font-size="10" fill="#67758a">${rows[0]?.label||''}</text><text x="${W-90}" y="${H-6}" font-size="10" fill="#67758a">${rows[rows.length-1]?.label||''}</text></svg>`
-  + `<p class="hint">Favourable ← 0 → Challenging · the graph adapts to this Mahadasha (±${plotLimit}); scores remain on the −100 to +100 model scale. Click a dot to inspect its WHY trace.</p>`
-  + `<div class="pred-quarters">${rows.map(r=>{const k=plottedKeys[0];return `<button class="pred-q ${r.label===sel.label?'selected':''}" data-quarter="${r.label}">${r.label}<b>${r.scores[k].direction>0?'+':''}${r.scores[k].direction}</b></button>`;}).join('')}</div>`
+  + `<div class="pred-dasha-hero"><div><span>SELECTED MAHADASHA</span><h4>${planetToken(active.lord)}</h4><p>${DateTime.fromMillis(s,{zone:chart.time.zone}).toFormat('dd LLL yyyy')} — ${DateTime.fromMillis(e,{zone:chart.time.zone}).toFormat('dd LLL yyyy')}</p></div><div class="pred-scale-key"><b>Direction scale</b><span><i class="support"></i>Supportive</span><span><i class="balanced"></i>Balanced</span><span><i class="challenge"></i>Challenging</span></div></div>`
+  + `<svg class="pred-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Quarterly prediction chart on a fixed minus 100 to plus 100 direction scale">${chartBands.map(([from,to,tone])=>`<rect x="${padL}" y="${Y(from)}" width="${plotW}" height="${Y(to)-Y(from)}" class="pred-band ${tone}"/>`).join('')}${axisTicks.map(v=>`<line x1="${padL}" x2="${W-16}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v===0?'#142a40':'#ffffffaa'}"/><text x="6" y="${Y(v)+4}" font-size="10" fill="#67758a">${v>0?'+':''}${v}</text>`).join('')}${lines}${dots}<text x="${padL}" y="${H-6}" font-size="10" fill="#67758a">${rows[0]?.label||''}</text><text x="${W-90}" y="${H-6}" font-size="10" fill="#67758a">${rows[rows.length-1]?.label||''}</text></svg>`
+  + `<p class="hint">Fixed −100 to +100 scale · scores between −25 and +25 are balanced. Click a dot or quarter card to inspect its WHY trace.</p>`
+  + `<div class="pred-quarter-heading"><h4>${esc(DOMAINS[plottedKeys[0]].label)} direction by quarter</h4><span>Exact scores</span></div><div class="pred-quarters">${rows.map(r=>{const k=plottedKeys[0],v=r.scores[k].direction,[tone,label]=directionBand(v);return `<button class="pred-q ${tone} ${r.label===sel.label?'selected':''}" data-quarter="${r.label}"><span>${r.label}</span><b>${v>0?'+':''}${v}</b><small>${label}</small></button>`;}).join('')}</div>`
   + `<h3 class="spaced pred-why-title">${esc(sel.label)} — why this score</h3>${why}</div>`;
 }
 function transitView(){
