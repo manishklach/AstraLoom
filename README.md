@@ -21,7 +21,7 @@
 
 The **Predictions** tab adds deterministic, explainable quarterly astrology indicators for Education, Career, Relationships, Wealth, Health & Wellbeing, and Litigation.
 
-- Choose a 1-year, 5-year, 10-year, or current-Mahadasha horizon. The 1-year and 5-year ranges begin now; the 10-year range shows the previous five years and the next five years.
+- Predictions open on the complete current Mahadasha. Use the Mahadasha selector to inspect earlier or later periods.
 - Compare selected domains on a −100 to +100 Direction chart, select a quarter, and inspect the natal, dasha, combination, and repetition reasons behind it.
 - Intensity measures activation magnitude; Confidence measures agreement inside this model. Neither is an event probability.
 - The method preserves Planet/Nakshatra/Sub weighting of **20/40/40** and MD/AD/PD/Sookshma weighting of **35/30/22/13**. Exact dasha boundaries are time-weighted within each quarter.

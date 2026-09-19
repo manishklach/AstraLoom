@@ -10,7 +10,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sample={date:'1975-10-19',hour:'5',minute:'55',second:'0',ampm:'AM',zone:'Asia/Kolkata',lat:19.076,lon:72.8777,place:'Mumbai, Maharashtra, India',fold:'reject',node:'mean',yearDays:365.25};
 let swe,chart,transit,tab='birth',chartStyle='north',cycle=0,path=[],displayZone='birth',searchTimer,searchAbort,searchGeneration=0;
-let predRange='10',predSelected={career:true,wealth:true,relationships:false,education:false,health:false,litigation:false},predQuarterLabel=null;
+let predMDStart=null,predSelected={career:true,wealth:true,relationships:false,education:false,health:false,litigation:false},predQuarterLabel=null;
 document.querySelector('#app').innerHTML=`
 <header><a class="brand" href="/" aria-label="AstraLoom home"><span class="brand-icon">✧</span> <b>AstraLoom</b></a><span class="header-note">A personal astrology workspace</span><nav class="workspace-links" aria-label="Workspace navigation"><button class="new-chart" id="new-chart" type="button">New chart</button><a class="new-chart profile-link" href="/profile">My profile</a><a class="workspace-page-link" href="/about">About us</a><a class="workspace-page-link services-link" href="/services">Services <span aria-hidden="true">↗</span></a></nav><span class="engine" id="engine">Loading ephemeris…</span><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode"><span aria-hidden="true">☾</span></button></header>
 <main><aside><div class="aside-heading"><span class="eyebrow">THE STARTING POINT</span><h1>Birth details</h1><p>A precise time. A place in the world.</p></div>
@@ -80,15 +80,13 @@ function dashaView(){
   return `<div class="section-title"><h3>Dasha navigator</h3><label class="inline-label">Display dates in <select id="date-zone"><option value="birth" ${displayZone==='birth'?'selected':''}>${esc(chart.time.zone)}</option><option ${displayZone==='UTC'?'selected':''}>UTC</option></select></label></div><div class="dasha-toolbar"><div><button id="prev-cycle" class="secondary" aria-label="Previous 120-year cycle">← 120 years</button><button id="next-cycle" class="secondary" aria-label="Next 120-year cycle">120 years →</button></div><form id="jump-form"><label>Go to date (${esc(zone())})<input id="jump-date" type="date" required value="${DateTime.now().setZone(zone()).toISODate()}"></label><button class="secondary">Go</button><button id="now" class="secondary" type="button">Now</button></form></div><p class="hint">Select a period to open its subdivisions. Dates below include UTC offsets and seconds. Start is inclusive; end is exclusive. Go selects midnight in the displayed timezone.</p><div class="dasha-grid">${lists.map((list,level)=>`<section class="dasha-column"><div class="column-heading"><b>${['MD','AD','PD','Sookshma','Pran'][level]}</b><span>${['Mahadasha','Antardasha','Pratyantardasha','Sookshma dasha','Pran dasha'][level]}</span></div>${list.map((p,i)=>`<button class="period ${path[level]?.start===p.start?'selected':''}" data-level="${level}" data-index="${i}" aria-pressed="${path[level]?.start===p.start}"><span class="period-name">${planetToken(p.lord)} ${contains(p,Date.now())?'<small>Current</small>':''}</span><span><small>From</small> ${stamp(p.start)}</span><span><small>Until</small> ${stamp(p.end)}</span></button>`).join('')}</section>`).join('')}</div><div class="notice">Year convention: ${chart.input.yearDays} days. The birth balance comes from the Moon’s unrounded position within its nakshatra. Period timestamps are mathematical boundaries under this convention, not claims of predictive precision.</div>`;
 }
 const PRED_COLORS={education:'#587fb8',career:'#6c6bdd',relationships:'#ae5b72',wealth:'#af7a2d',health:'#397f72',litigation:'#9366aa'};
-function predRangeBounds(){
-  const now=Date.now(),Y=365.25*86400000;
-  if(predRange==='1')return[now,now+Y];
-  if(predRange==='5')return[now,now+5*Y];
-  if(predRange==='10')return[now-5*Y,now+5*Y];
-  const {chain}=chainAt(chart.seed,now);return[chain[0].start,chain[0].end];
+function predictionMahadashas(){
+  const current=chainAt(chart.seed,Date.now());
+  const periods=[current.cycle-1,current.cycle,current.cycle+1].flatMap(c=>mahadashas(chart.seed,c));
+  return {periods,active:periods.find(p=>p.start===predMDStart)||current.chain[0]};
 }
 function predictionsView(){
-  const [s,e]=predRangeBounds();
+  const {periods,active}=predictionMahadashas(),s=active.start,e=active.end;
   const keys=DOMAIN_KEYS.filter(k=>predSelected[k]);
   const rows=predictRange(chart,s,e,keys.length?keys:['career']);
   const W=760,H=280,padL=44,padB=28,plotW=W-padL-16,plotH=H-20-padB;
@@ -107,7 +105,7 @@ function predictionsView(){
   return `<div class="predictions"><div class="section-title"><h3>Predictions</h3><span>deterministic V1 · quarterly</span></div>`
   + `<p class="view-note pred-note">Mathematical indicators from natal promise × dasha activation — not advice. Health &amp; litigation are astrological indicators only, not medical or legal forecasts. Weights: MD 35 · AD 30 · PD 22 · Sookshma 13; Planet 20 · Nak 40 · Sub 40.</p>`
   + `<div class="pred-controls"><div class="pred-toggles">${DOMAIN_KEYS.map(k=>`<label><input type="checkbox" data-pred-domain="${k}" ${predSelected[k]?'checked':''}> ${esc(DOMAINS[k].label)}</label>`).join('')}</div>`
-  + `<label class="inline-label">Range <select id="pred-range"><option value="1" ${predRange==='1'?'selected':''}>1 year</option><option value="5" ${predRange==='5'?'selected':''}>5 years</option><option value="10" ${predRange==='10'?'selected':''}>10 years</option><option value="dasha" ${predRange==='dasha'?'selected':''}>Full dasha</option></select></label></div>`
+  + `<label class="inline-label">Mahadasha <select id="pred-md">${periods.map(p=>`<option value="${p.start}" ${p.start===active.start?'selected':''}>${p.lord} · ${DateTime.fromMillis(p.start,{zone:chart.time.zone}).toFormat('dd LLL yyyy')} — ${DateTime.fromMillis(p.end,{zone:chart.time.zone}).toFormat('dd LLL yyyy')}</option>`).join('')}</select></label></div>`
   + `<svg class="pred-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Quarterly prediction chart, favourable up, challenging down">${[100,50,0,-50,-100].map(v=>`<line x1="${padL}" x2="${W-16}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v===0?'#142a40':'#dfe5ec'}"/><text x="6" y="${Y(v)+4}" font-size="10" fill="#67758a">${v>0?'+':''}${v}</text>`).join('')}${lines}${dots}<text x="${padL}" y="${H-6}" font-size="10" fill="#67758a">${rows[0]?.label||''}</text><text x="${W-90}" y="${H-6}" font-size="10" fill="#67758a">${rows[rows.length-1]?.label||''}</text></svg>`
   + `<p class="hint">Favourable ← 0 → Challenging · dot size is uniform; intensity is shown per quarter below. Click a dot to inspect its WHY trace.</p>`
   + `<div class="pred-quarters">${rows.map(r=>{const k=(keys.length?keys:['career'])[0];return `<button class="pred-q ${r.label===sel.label?'selected':''}" data-quarter="${r.label}">${r.label}<b>${r.scores[k].direction>0?'+':''}${r.scores[k].direction}</b></button>`;}).join('')}</div>`
@@ -123,7 +121,7 @@ function transitView(){
   document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;if(tab==='transits'&&!swe){calculateNow();return;}render();});
   if(tab==='transits')$('#refresh-transits').onclick=()=>{transit=currentTransits(swe,chart);render();};
   if(tab==='predictions'){
-    $('#pred-range').onchange=e=>{predRange=e.target.value;predQuarterLabel=null;render();};
+    $('#pred-md').onchange=e=>{predMDStart=Number(e.target.value);predQuarterLabel=null;render();};
     document.querySelectorAll('[data-pred-domain]').forEach(c=>c.onchange=()=>{predSelected[c.dataset.predDomain]=c.checked;if(!Object.values(predSelected).some(Boolean))predSelected[c.dataset.predDomain]=true;render();});
     document.querySelectorAll('[data-quarter]').forEach(b=>b.addEventListener('click',()=>{predQuarterLabel=b.dataset.quarter;render();}));
   }

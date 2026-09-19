@@ -4,7 +4,7 @@ Predictions is a deterministic, explainable quarterly interpretation layer over 
 
 ## What it shows
 
-Choose Education, Career, Relationships, Wealth, Health & Wellbeing, and Litigation. The 1-year and 5-year ranges begin now. The 10-year range is centered on today, showing the previous five years and the next five years. Full dasha uses the exact current Mahadasha boundary.
+Choose Education, Career, Relationships, Wealth, Health & Wellbeing, and Litigation. Predictions open on the exact current Mahadasha. The selector lists Mahadashas from the adjacent 120-year cycles so earlier and later periods can be inspected directly.
 
 Each quarter reports:
 
